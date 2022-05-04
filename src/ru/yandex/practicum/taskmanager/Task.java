@@ -1,7 +1,5 @@
-package ru.yandex.practicum.taskmanager.tasks;
+package ru.yandex.practicum.taskmanager;
 
-import ru.yandex.practicum.taskmanager.TaskManager;
-import ru.yandex.practicum.taskmanager.TaskManager.Status;
 
 public class Task {
 
@@ -9,10 +7,14 @@ public class Task {
     protected String taskDescription;
     protected Status status;
 
-    public Task(String taskName, String taskDescription, Status status) {
+    public Task(String taskName, String taskDescription) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
-        this.status = status;
+        this.status = Status.NEW;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     @Override
@@ -22,5 +24,9 @@ public class Task {
                 ", taskDescription = '" + taskDescription + '\'' +
                 ", taskStatus = '" + status + '\'' +
                 '}';
+    }
+
+    public enum Status {
+        NEW, IN_PROGRESS, DONE
     }
 }

@@ -1,11 +1,9 @@
 package ru.yandex.practicum.taskmanager;
 
-import ru.yandex.practicum.taskmanager.tasks.Epic;
-import ru.yandex.practicum.taskmanager.tasks.SubTask;
-import ru.yandex.practicum.taskmanager.tasks.Task;
-
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+
+import ru.yandex.practicum.taskmanager.Task.Status;
 
 public class TaskManager {
 
@@ -22,30 +20,29 @@ public class TaskManager {
     }
 
 
-
     private int generateId() {
         return id++;
     }
 
-    public void getAllTasks() {
-        for (Map.Entry<Integer, Task> task : taskMap.entrySet()) {
-            System.out.print("ID: " + task.getKey() + ", ");
-            System.out.println(task.getValue());
+    public HashMap<Integer, Task> getAllTasks() {
+        if (taskMap.isEmpty()) {
+            return null;
         }
+        return taskMap;
     }
 
-    public void getAllEpics() {
-        for (Map.Entry<Integer, Epic> epic : epicMap.entrySet()) {
-            System.out.print("ID: " + epic.getKey() + ", ");
-            System.out.println(epic.getValue());
+    public HashMap<Integer, Epic> getAllEpics() {
+        if (epicMap.isEmpty()) {
+            return null;
         }
+        return epicMap;
     }
 
-    public void getAllSubTasks() {
-        for (Map.Entry<Integer, SubTask> subTask : subTaskMap.entrySet()) {
-            System.out.print("ID: " + subTask.getKey() + ", ");
-            System.out.println(subTask.getValue());
+    public HashMap<Integer, SubTask> getAllSubTasks() {
+        if (subTaskMap.isEmpty()) {
+            return null;
         }
+        return subTaskMap;
     }
 
     public void createTask(Task task) {
@@ -60,71 +57,134 @@ public class TaskManager {
         int id = generateId();
         int epicId = subTask.getEpicId();
 
-        //Putting SubTask in the Map
         subTaskMap.put(id, subTask);
-        //Adding ID of the SubTask to the ArrayList in Epic
-        epicMap.get(epicId).setSubTaskId(id);
+        epicMap.get(epicId).setSubTaskIdList(id);
     }
 
     public void clearAllTasks() {
-        taskMap.clear();
+        if (!taskMap.isEmpty()) {
+            taskMap.clear();
+        }
     }
 
     public void clearAllEpics() {
-        epicMap.clear();
+        if (!epicMap.isEmpty()) {
+            epicMap.clear();
+        }
     }
 
     public void clearAllSubTasks() {
-        subTaskMap.clear();
+        if (!subTaskMap.isEmpty()) {
+            subTaskMap.clear();
+        }
     }
 
     public void removeTaskById(int id) {
         if (!taskMap.containsKey(id)) {
-            System.out.println("Задача под номером " + id + " не существует.");
-        } else {
-            taskMap.remove(id);
+            return;
         }
+        taskMap.remove(id);
     }
 
     public void removeEpicById(int id) {
         if (!epicMap.containsKey(id)) {
-            System.out.println("Задача под номером " + id + " не существует.");
-        } else {
-            epicMap.remove(id);
+            return;
         }
+        epicMap.remove(id);
     }
 
     public void removeSubTaskById(int id) {
         if (!subTaskMap.containsKey(id)) {
-            System.out.println("Задача под номером " + id + " не существует.");
-        } else {
-            subTaskMap.remove(id);
+            return;
         }
+        subTaskMap.remove(id);
     }
 
-    public void gettingTaskById(int id) {
+    public Task gettingTaskById(int id) {
         if (!taskMap.containsKey(id)) {
-            return;
+            return null;
         }
-        System.out.println(taskMap.get(id));
+        return taskMap.get(id);
     }
 
-    public void gettingEpicById(int id) {
+    public Epic gettingEpicById(int id) {
         if (!epicMap.containsKey(id)) {
-            return;
+            return null;
         }
-        System.out.println(epicMap.get(id));
+        return epicMap.get(id);
     }
 
-    public void gettingSubTaskById(int id) {
+    public SubTask gettingSubTaskById(int id) {
         if (!subTaskMap.containsKey(id)) {
-            return;
+            return null;
         }
-        System.out.println(subTaskMap.get(id));
+        return subTaskMap.get(id);
     }
 
+    public ArrayList<SubTask> gettingSubTasksOfEpic(int epicId) {
+        if (epicMap.get(epicId).getSubTaskIdList().isEmpty()) {
+            return null;
+        }
 
-    public enum Status {
-        NEW, IN_PROGRESS, DONE
+        ArrayList<SubTask> subTasks = new ArrayList<>();
+        ArrayList<Integer> subTaskIds = epicMap.get(epicId).getSubTaskIdList();
+
+        for (Integer subTask : subTaskIds) {
+            subTasks.add(subTaskMap.get(subTask));
+        }
+        return subTasks;
+    }
+
+    public void updateTask(Task task, int id, Status status) {
+        if (taskMap.containsKey(id)) {
+            task.status = status;
+            taskMap.put(id, task);
+        }
+    }
+
+    public void updateEpic(Epic epic, int id) {
+        if (!epicMap.get(id).getSubTaskIdList().isEmpty()) {
+            ArrayList<Integer> subTasks = epicMap.get(id).getSubTaskIdList();
+
+            for (Integer subId : subTasks) {
+                epic.setSubTaskIdList(subId);
+            }
+        }
+    }
+
+    public void updateSubTask(SubTask subTask, int id, Status status) {
+        if (subTaskMap.containsKey(id)) {
+            subTask.status = status;
+            subTaskMap.put(id, subTask);
+            epicMap.get(subTask.getEpicId()).status = checkStatus(subTask.getEpicId());
+        }
+    }
+
+    public Status checkStatus(int epicId) {
+        if (!epicMap.containsKey(epicId) || epicMap.get(epicId).getSubTaskIdList().isEmpty()) {
+            return null;
+        }
+
+        Epic tempEpic = epicMap.get(epicId);
+        ArrayList<Integer> subTaskIdList = tempEpic.getSubTaskIdList();
+
+        int countNew = 0;
+        int countDone = 0;
+
+        for (Integer subTaskId : subTaskIdList) {
+            if (subTaskMap.get(subTaskId).getStatus().equals(Status.NEW)) {
+                countNew++;
+            } else if (subTaskMap.get(subTaskId).getStatus().equals(Status.DONE)) {
+                countDone++;
+            }
+        }
+
+        if (countNew == subTaskIdList.size()) {
+            return Status.NEW;
+        } else if (countDone == subTaskIdList.size()) {
+            return Status.DONE;
+        } else {
+            return Status.IN_PROGRESS;
+        }
     }
 }
