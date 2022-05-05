@@ -1,4 +1,4 @@
-package ru.yandex.practicum.taskmanager;
+package ru.yandex.practicum.taskmanager.task;
 
 
 public class Task {
@@ -17,6 +17,10 @@ public class Task {
         return status;
     }
 
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "Task {" +
@@ -24,9 +28,5 @@ public class Task {
                 ", taskDescription = '" + taskDescription + '\'' +
                 ", taskStatus = '" + status + '\'' +
                 '}';
-    }
-
-    public enum Status {
-        NEW, IN_PROGRESS, DONE
     }
 }

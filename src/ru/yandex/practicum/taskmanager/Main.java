@@ -1,5 +1,10 @@
 package ru.yandex.practicum.taskmanager;
 
+import ru.yandex.practicum.taskmanager.task.Epic;
+import ru.yandex.practicum.taskmanager.task.Status;
+import ru.yandex.practicum.taskmanager.task.SubTask;
+import ru.yandex.practicum.taskmanager.task.Task;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -28,15 +33,18 @@ public class Main {
 
         //Измените статусы созданных объектов, распечатайте.
         //Проверьте, что статус задачи и подзадачи сохранился, а статус эпика рассчитался по статусам подзадач.
-        manager.updateTask(new Task("Прочитать книгу", "Core Java"), 0, Task.Status.IN_PROGRESS);
-        manager.updateTask(new Task("Посмотреть фильм", "The Batman"), 1, Task.Status.DONE);
+        manager.updateTask(new Task("Прочитать книгу", "Core Java"), 0, Status.IN_PROGRESS);
+        manager.updateTask(new Task("Посмотреть фильм", "The Batman"), 1, Status.DONE);
 
         manager.updateEpic(new Epic("Переезд", "В другую страну"), 2);
-        manager.updateSubTask(new SubTask("Информация", "Зайти на сайт страны", 2), 3, Task.Status.IN_PROGRESS);
-        manager.updateSubTask(new SubTask("Квартира", "Найти квартиру для съема", 2), 4, Task.Status.DONE);
+        manager.updateSubTask(new SubTask("Информация", "Зайти на сайт страны", 2),
+                3, Status.IN_PROGRESS);
+        manager.updateSubTask(new SubTask("Квартира", "Найти квартиру для съема", 2),
+                4, Status.DONE);
 
         manager.updateEpic(new Epic("Закупка", "Купить продукты на завтра"), 5);
-        manager.updateSubTask(new SubTask("Список", "Написать список товаров", 5), 6, Task.Status.DONE);
+        manager.updateSubTask(new SubTask("Список", "Написать список товаров", 5),
+                6, Status.DONE);
 
         System.out.println();
         System.out.println(manager.getAllTasks());

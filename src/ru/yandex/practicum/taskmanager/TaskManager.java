@@ -3,7 +3,10 @@ package ru.yandex.practicum.taskmanager;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import ru.yandex.practicum.taskmanager.Task.Status;
+import ru.yandex.practicum.taskmanager.task.SubTask;
+import ru.yandex.practicum.taskmanager.task.Task;
+import ru.yandex.practicum.taskmanager.task.Status;
+import ru.yandex.practicum.taskmanager.task.Epic;
 
 public class TaskManager {
 
@@ -107,7 +110,7 @@ public class TaskManager {
     // 5. Обновление. Новая версия объекта с верным идентификатором передаются в виде параметра
     public void updateTask(Task task, int id, Status status) {
         if (taskMap.containsKey(id)) {
-            task.status = status;
+            task.setStatus(status);
             taskMap.put(id, task);
         }
     }
@@ -126,9 +129,9 @@ public class TaskManager {
         int epicId = subTask.getEpicId();
 
         if (subTaskMap.containsKey(id)) {
-            subTask.status = status;
+            subTask.setStatus(status);
             subTaskMap.put(id, subTask);
-            epicMap.get(epicId).status = checkStatus(epicId);
+            epicMap.get(epicId).setStatus(checkStatus(epicId));
         }
     }
 

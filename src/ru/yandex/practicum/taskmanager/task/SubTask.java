@@ -1,4 +1,4 @@
-package ru.yandex.practicum.taskmanager;
+package ru.yandex.practicum.taskmanager.task;
 
 
 public class SubTask extends Task {
