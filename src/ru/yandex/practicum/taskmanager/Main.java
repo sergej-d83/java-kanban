@@ -1,5 +1,6 @@
 package ru.yandex.practicum.taskmanager;
 
+import ru.yandex.practicum.taskmanager.manager.InMemoryTaskManager;
 import ru.yandex.practicum.taskmanager.task.Epic;
 import ru.yandex.practicum.taskmanager.task.Status;
 import ru.yandex.practicum.taskmanager.task.SubTask;
@@ -9,7 +10,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        TaskManager manager = new TaskManager();
+        InMemoryTaskManager manager = new InMemoryTaskManager();
 
         //Создайте 2 задачи, один эпик с 2 подзадачами, а другой эпик с 1 подзадачей.
         manager.createTask(new Task("Прочитать книгу", "Core Java"));

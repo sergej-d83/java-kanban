@@ -1,4 +1,4 @@
-package ru.yandex.practicum.taskmanager;
+package ru.yandex.practicum.taskmanager.manager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,26 +8,28 @@ import ru.yandex.practicum.taskmanager.task.Task;
 import ru.yandex.practicum.taskmanager.task.Status;
 import ru.yandex.practicum.taskmanager.task.Epic;
 
-public class TaskManager {
+public class InMemoryTaskManager implements TaskManager{
 
     private int id;
     private final HashMap<Integer, Task> taskMap;
     private final HashMap<Integer, Epic> epicMap;
     private final HashMap<Integer, SubTask> subTaskMap;
 
-    public TaskManager() {
+    public InMemoryTaskManager() {
         taskMap = new HashMap<>();
         epicMap = new HashMap<>();
         subTaskMap = new HashMap<>();
         id = 0;
     }
 
-    private int generateId() {
+    @Override
+    public int generateId() {
         return id++;
     }
 
     // Методы для каждого из типа задач(Задача/Эпик/Подзадача):
     // 1. Получение списка всех задач
+    @Override
     public HashMap<Integer, Task> getAllTasks() {
         if (taskMap.isEmpty()) {
             return null;
@@ -35,6 +37,7 @@ public class TaskManager {
         return taskMap;
     }
 
+    @Override
     public HashMap<Integer, Epic> getAllEpics() {
         if (epicMap.isEmpty()) {
             return null;
@@ -42,6 +45,7 @@ public class TaskManager {
         return epicMap;
     }
 
+    @Override
     public HashMap<Integer, SubTask> getAllSubTasks() {
         if (subTaskMap.isEmpty()) {
             return null;
@@ -50,18 +54,21 @@ public class TaskManager {
     }
 
     // 2. Удаление всех задач
+    @Override
     public void clearAllTasks() {
         if (!taskMap.isEmpty()) {
             taskMap.clear();
         }
     }
 
+    @Override
     public void clearAllEpics() {
         if (!epicMap.isEmpty()) {
             epicMap.clear();
         }
     }
 
+    @Override
     public void clearAllSubTasks() {
         if (!subTaskMap.isEmpty()) {
             subTaskMap.clear();
@@ -69,6 +76,7 @@ public class TaskManager {
     }
 
     // 3. Получение по идентификатору
+    @Override
     public Task gettingTaskById(int id) {
         if (!taskMap.containsKey(id)) {
             return null;
@@ -76,6 +84,7 @@ public class TaskManager {
         return taskMap.get(id);
     }
 
+    @Override
     public Epic gettingEpicById(int id) {
         if (!epicMap.containsKey(id)) {
             return null;
@@ -83,6 +92,7 @@ public class TaskManager {
         return epicMap.get(id);
     }
 
+    @Override
     public SubTask gettingSubTaskById(int id) {
         if (!subTaskMap.containsKey(id)) {
             return null;
@@ -91,14 +101,17 @@ public class TaskManager {
     }
 
     // 4. Создание. Сам объект должен передаваться в качестве параметра
+    @Override
     public void createTask(Task task) {
         taskMap.put(generateId(), task);
     }
 
+    @Override
     public void createEpic(Epic epic) {
         epicMap.put(generateId(), epic);
     }
 
+    @Override
     public void createSubTask(SubTask subTask) {
         int id = generateId();
         int epicId = subTask.getEpicId();
@@ -108,6 +121,7 @@ public class TaskManager {
     }
 
     // 5. Обновление. Новая версия объекта с верным идентификатором передаются в виде параметра
+    @Override
     public void updateTask(Task task, int id, Status status) {
         if (taskMap.containsKey(id)) {
             task.setStatus(status);
@@ -115,6 +129,7 @@ public class TaskManager {
         }
     }
 
+    @Override
     public void updateEpic(Epic epic, int id) {
         if (!epicMap.get(id).getSubTaskIdList().isEmpty()) {
             ArrayList<Integer> subTasks = epicMap.get(id).getSubTaskIdList();
@@ -125,6 +140,7 @@ public class TaskManager {
         }
     }
 
+    @Override
     public void updateSubTask(SubTask subTask, int id, Status status) {
         int epicId = subTask.getEpicId();
 
@@ -136,6 +152,7 @@ public class TaskManager {
     }
 
     // 6. Удаление по идентификатору
+    @Override
     public void removeTaskById(int id) {
         if (!taskMap.containsKey(id)) {
             return;
@@ -143,6 +160,7 @@ public class TaskManager {
         taskMap.remove(id);
     }
 
+    @Override
     public void removeEpicById(int id) {
         if (!epicMap.containsKey(id)) {
             return;
@@ -158,6 +176,7 @@ public class TaskManager {
         epicMap.remove(id);
     }
 
+    @Override
     public void removeSubTaskById(int id) {
         if (!subTaskMap.containsKey(id)) {
             return;
@@ -176,6 +195,7 @@ public class TaskManager {
     }
 
     // 7. Получение списка всех подзадач определённого эпика
+    @Override
     public ArrayList<SubTask> gettingSubTasksOfEpic(int epicId) {
         if (epicMap.get(epicId).getSubTaskIdList().isEmpty()) {
             return null;
@@ -190,6 +210,7 @@ public class TaskManager {
         return subTasks;
     }
 
+    @Override
     public Status checkStatus(int epicId) {
         if (!epicMap.containsKey(epicId)) {
             return null;
