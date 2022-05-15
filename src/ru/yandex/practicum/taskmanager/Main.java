@@ -1,6 +1,7 @@
 package ru.yandex.practicum.taskmanager;
 
-import ru.yandex.practicum.taskmanager.manager.InMemoryTaskManager;
+import ru.yandex.practicum.taskmanager.manager.Managers;
+import ru.yandex.practicum.taskmanager.manager.TaskManager;
 import ru.yandex.practicum.taskmanager.task.Epic;
 import ru.yandex.practicum.taskmanager.task.Status;
 import ru.yandex.practicum.taskmanager.task.SubTask;
@@ -10,7 +11,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        InMemoryTaskManager manager = new InMemoryTaskManager();
+        TaskManager manager = Managers.getDefault();
 
         //Создайте 2 задачи, один эпик с 2 подзадачами, а другой эпик с 1 подзадачей.
         manager.createTask(new Task("Прочитать книгу", "Core Java"));
@@ -64,5 +65,21 @@ public class Main {
         System.out.println(manager.getAllEpics());
         System.out.println();
         System.out.println(manager.getAllSubTasks());
+
+        System.out.println();
+        System.out.println(manager.getHistory());
+        manager.gettingTaskById(1);
+        manager.gettingEpicById(5);
+        manager.gettingSubTaskById(6);
+        manager.gettingTaskById(1);
+        manager.gettingEpicById(5);
+        manager.gettingSubTaskById(6);
+        manager.gettingTaskById(1);
+        manager.gettingEpicById(5);
+        manager.gettingSubTaskById(6);
+        manager.gettingTaskById(1);
+        manager.gettingEpicById(5);
+        manager.gettingSubTaskById(6);
+        System.out.println(manager.getHistory());
     }
 }

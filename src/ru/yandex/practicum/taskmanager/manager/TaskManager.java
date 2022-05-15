@@ -2,6 +2,7 @@ package ru.yandex.practicum.taskmanager.manager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import ru.yandex.practicum.taskmanager.task.SubTask;
 import ru.yandex.practicum.taskmanager.task.Task;
@@ -11,6 +12,10 @@ import ru.yandex.practicum.taskmanager.task.Epic;
 public interface TaskManager {
 
     int generateId();
+
+    List<Task> getHistory();
+
+    void checkHistoryLength();
 
     // Методы для каждого из типа задач(Задача/Эпик/Подзадача):
     // 1. Получение списка всех задач
