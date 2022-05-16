@@ -1,8 +1,10 @@
-package ru.yandex.practicum.taskmanager.manager;
+package ru.yandex.practicum.taskmanager.manager.taskmanager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import ru.yandex.practicum.taskmanager.manager.Managers;
+import ru.yandex.practicum.taskmanager.manager.historymanager.HistoryManager;
 import ru.yandex.practicum.taskmanager.task.SubTask;
 import ru.yandex.practicum.taskmanager.task.Task;
 import ru.yandex.practicum.taskmanager.task.Status;
@@ -29,6 +31,10 @@ public class InMemoryTaskManager implements TaskManager {
         return id++;
     }
 
+    @Override
+    public HistoryManager getHistoryManager() {
+        return historyManager;
+    }
 
     // Методы для каждого из типа задач(Задача/Эпик/Подзадача):
     // 1. Получение списка всех задач

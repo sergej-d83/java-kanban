@@ -1,4 +1,4 @@
-package ru.yandex.practicum.taskmanager.manager;
+package ru.yandex.practicum.taskmanager.manager.historymanager;
 
 import ru.yandex.practicum.taskmanager.task.Task;
 

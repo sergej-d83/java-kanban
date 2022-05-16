@@ -1,8 +1,7 @@
 package ru.yandex.practicum.taskmanager;
 
-import ru.yandex.practicum.taskmanager.manager.HistoryManager;
 import ru.yandex.practicum.taskmanager.manager.Managers;
-import ru.yandex.practicum.taskmanager.manager.TaskManager;
+import ru.yandex.practicum.taskmanager.manager.taskmanager.TaskManager;
 import ru.yandex.practicum.taskmanager.task.Epic;
 import ru.yandex.practicum.taskmanager.task.SubTask;
 import ru.yandex.practicum.taskmanager.task.Task;
@@ -12,7 +11,6 @@ public class Main {
     public static void main(String[] args) {
 
         TaskManager manager = Managers.getDefault();
-        HistoryManager historyManager = Managers.getDefaultHistory();
 
         //Создайте несколько задач разного типа.
         manager.createTask(new Task("Прочитать книгу", "Core Java"));
@@ -32,11 +30,11 @@ public class Main {
         */
 
         manager.gettingTaskById(0);
-        System.out.println(historyManager.getHistory());
+        System.out.println(manager.getHistoryManager().getHistory());
         manager.gettingEpicById(2);
-        System.out.println(historyManager.getHistory());
+        System.out.println(manager.getHistoryManager().getHistory());
         manager.gettingSubTaskById(3);
-        System.out.println(historyManager.getHistory());
+        System.out.println(manager.getHistoryManager().getHistory());
 
     }
 }
