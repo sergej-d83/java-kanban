@@ -1,9 +1,9 @@
 package ru.yandex.practicum.taskmanager;
 
+import ru.yandex.practicum.taskmanager.manager.HistoryManager;
 import ru.yandex.practicum.taskmanager.manager.Managers;
 import ru.yandex.practicum.taskmanager.manager.TaskManager;
 import ru.yandex.practicum.taskmanager.task.Epic;
-import ru.yandex.practicum.taskmanager.task.Status;
 import ru.yandex.practicum.taskmanager.task.SubTask;
 import ru.yandex.practicum.taskmanager.task.Task;
 
@@ -12,8 +12,9 @@ public class Main {
     public static void main(String[] args) {
 
         TaskManager manager = Managers.getDefault();
+        HistoryManager historyManager = Managers.getDefaultHistory();
 
-        //Создайте 2 задачи, один эпик с 2 подзадачами, а другой эпик с 1 подзадачей.
+        //Создайте несколько задач разного типа.
         manager.createTask(new Task("Прочитать книгу", "Core Java"));
         manager.createTask(new Task("Посмотреть фильм", "The Batman"));
 
@@ -25,61 +26,17 @@ public class Main {
         manager.createEpic(new Epic("Закупка", "Купить продукты на завтра"));
         manager.createSubTask(new SubTask("Список", "Написать список товаров", 5));
 
-        //Распечатайте списки эпиков, задач и подзадач, через System.out.println(..)
-        System.out.println();
-        System.out.println(manager.getAllTasks());
-        System.out.println();
-        System.out.println(manager.getAllEpics());
-        System.out.println();
-        System.out.println(manager.getAllSubTasks());
 
-        //Измените статусы созданных объектов, распечатайте.
-        //Проверьте, что статус задачи и подзадачи сохранился, а статус эпика рассчитался по статусам подзадач.
-        manager.updateTask(new Task("Прочитать книгу", "Core Java"), 0, Status.IN_PROGRESS);
-        manager.updateTask(new Task("Посмотреть фильм", "The Batman"), 1, Status.DONE);
+        /* Вызовите разные методы интерфейса TaskManager и напечатайте историю просмотров после каждого вызова.
+           Если код рабочий, то история просмотров задач будет отображаться корректно
+        */
 
-        manager.updateEpic(new Epic("Переезд", "В другую страну"), 2);
-        manager.updateSubTask(new SubTask("Информация", "Зайти на сайт страны", 2),
-                3, Status.IN_PROGRESS);
-        manager.updateSubTask(new SubTask("Квартира", "Найти квартиру для съема", 2),
-                4, Status.DONE);
+        manager.gettingTaskById(0);
+        System.out.println(historyManager.getHistory());
+        manager.gettingEpicById(2);
+        System.out.println(historyManager.getHistory());
+        manager.gettingSubTaskById(3);
+        System.out.println(historyManager.getHistory());
 
-        manager.updateEpic(new Epic("Закупка", "Купить продукты на завтра"), 5);
-        manager.updateSubTask(new SubTask("Список", "Написать список товаров", 5),
-                6, Status.DONE);
-
-        System.out.println();
-        System.out.println(manager.getAllTasks());
-        System.out.println();
-        System.out.println(manager.getAllEpics());
-        System.out.println();
-        System.out.println(manager.getAllSubTasks());
-
-        //И, наконец, попробуйте удалить одну из задач и один из эпиков.
-        manager.removeTaskById(0);
-        manager.removeEpicById(2);
-
-        System.out.println();
-        System.out.println(manager.getAllTasks());
-        System.out.println();
-        System.out.println(manager.getAllEpics());
-        System.out.println();
-        System.out.println(manager.getAllSubTasks());
-
-        System.out.println();
-        System.out.println(manager.getHistory());
-        manager.gettingTaskById(1);
-        manager.gettingEpicById(5);
-        manager.gettingSubTaskById(6);
-        manager.gettingTaskById(1);
-        manager.gettingEpicById(5);
-        manager.gettingSubTaskById(6);
-        manager.gettingTaskById(1);
-        manager.gettingEpicById(5);
-        manager.gettingSubTaskById(6);
-        manager.gettingTaskById(1);
-        manager.gettingEpicById(5);
-        manager.gettingSubTaskById(6);
-        System.out.println(manager.getHistory());
     }
 }

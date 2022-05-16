@@ -2,24 +2,22 @@ package ru.yandex.practicum.taskmanager.manager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 
 import ru.yandex.practicum.taskmanager.task.SubTask;
 import ru.yandex.practicum.taskmanager.task.Task;
 import ru.yandex.practicum.taskmanager.task.Status;
 import ru.yandex.practicum.taskmanager.task.Epic;
 
-public class InMemoryTaskManager implements TaskManager{
+public class InMemoryTaskManager implements TaskManager {
 
     private int id;
     private final HashMap<Integer, Task> taskMap;
     private final HashMap<Integer, Epic> epicMap;
     private final HashMap<Integer, SubTask> subTaskMap;
-    private final List<Task> history;
+    private final HistoryManager historyManager;
 
     public InMemoryTaskManager() {
-        history = new LinkedList<>();
+        historyManager = Managers.getDefaultHistory();
         taskMap = new HashMap<>();
         epicMap = new HashMap<>();
         subTaskMap = new HashMap<>();
@@ -31,17 +29,6 @@ public class InMemoryTaskManager implements TaskManager{
         return id++;
     }
 
-    @Override
-    public List<Task> getHistory() {
-        return history;
-    }
-
-    @Override
-    public void checkHistoryLength() {
-        if (!history.isEmpty() && history.size() > 9) {
-            history.remove(0);
-        }
-    }
 
     // Методы для каждого из типа задач(Задача/Эпик/Подзадача):
     // 1. Получение списка всех задач
@@ -97,8 +84,7 @@ public class InMemoryTaskManager implements TaskManager{
         if (!taskMap.containsKey(id)) {
             return null;
         }
-        checkHistoryLength();
-        history.add(taskMap.get(id));
+        historyManager.add(taskMap.get(id));
         return taskMap.get(id);
     }
 
@@ -107,8 +93,7 @@ public class InMemoryTaskManager implements TaskManager{
         if (!epicMap.containsKey(id)) {
             return null;
         }
-        checkHistoryLength();
-        history.add(epicMap.get(id));
+        historyManager.add(epicMap.get(id));
         return epicMap.get(id);
     }
 
@@ -117,8 +102,7 @@ public class InMemoryTaskManager implements TaskManager{
         if (!subTaskMap.containsKey(id)) {
             return null;
         }
-        checkHistoryLength();
-        history.add(subTaskMap.get(id));
+        historyManager.add(subTaskMap.get(id));
         return subTaskMap.get(id);
     }
 
