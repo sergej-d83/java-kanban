@@ -2,6 +2,8 @@ package ru.yandex.practicum.taskmanager.manager.taskmanager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import ru.yandex.practicum.taskmanager.manager.Managers;
 import ru.yandex.practicum.taskmanager.manager.historymanager.HistoryManager;
@@ -13,9 +15,9 @@ import ru.yandex.practicum.taskmanager.task.Epic;
 public class InMemoryTaskManager implements TaskManager {
 
     private int id;
-    private final HashMap<Integer, Task> taskMap;
-    private final HashMap<Integer, Epic> epicMap;
-    private final HashMap<Integer, SubTask> subTaskMap;
+    private final Map<Integer, Task> taskMap;
+    private final Map<Integer, Epic> epicMap;
+    private final Map<Integer, SubTask> subTaskMap;
     private final HistoryManager historyManager;
 
     public InMemoryTaskManager() {
@@ -39,26 +41,17 @@ public class InMemoryTaskManager implements TaskManager {
     // Методы для каждого из типа задач(Задача/Эпик/Подзадача):
     // 1. Получение списка всех задач
     @Override
-    public HashMap<Integer, Task> getAllTasks() {
-        if (taskMap.isEmpty()) {
-            return null;
-        }
+    public Map<Integer, Task> getAllTasks() {
         return taskMap;
     }
 
     @Override
-    public HashMap<Integer, Epic> getAllEpics() {
-        if (epicMap.isEmpty()) {
-            return null;
-        }
+    public Map<Integer, Epic> getAllEpics() {
         return epicMap;
     }
 
     @Override
-    public HashMap<Integer, SubTask> getAllSubTasks() {
-        if (subTaskMap.isEmpty()) {
-            return null;
-        }
+    public Map<Integer, SubTask> getAllSubTasks() {
         return subTaskMap;
     }
 
@@ -86,7 +79,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // 3. Получение по идентификатору
     @Override
-    public Task gettingTaskById(int id) {
+    public Task getTaskById(int id) {
         if (!taskMap.containsKey(id)) {
             return null;
         }
@@ -95,7 +88,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Epic gettingEpicById(int id) {
+    public Epic getEpicById(int id) {
         if (!epicMap.containsKey(id)) {
             return null;
         }
@@ -104,7 +97,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public SubTask gettingSubTaskById(int id) {
+    public SubTask getSubTaskById(int id) {
         if (!subTaskMap.containsKey(id)) {
             return null;
         }
@@ -144,7 +137,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateEpic(Epic epic, int id) {
         if (!epicMap.get(id).getSubTaskIdList().isEmpty()) {
-            ArrayList<Integer> subTasks = epicMap.get(id).getSubTaskIdList();
+            List<Integer> subTasks = epicMap.get(id).getSubTaskIdList();
 
             for (Integer subId : subTasks) {
                 epic.setSubTaskIdList(subId);
@@ -166,9 +159,6 @@ public class InMemoryTaskManager implements TaskManager {
     // 6. Удаление по идентификатору
     @Override
     public void removeTaskById(int id) {
-        if (!taskMap.containsKey(id)) {
-            return;
-        }
         taskMap.remove(id);
     }
 
@@ -179,7 +169,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         if (!epicMap.get(id).getSubTaskIdList().isEmpty()) {
-            ArrayList<Integer> subTasks = epicMap.get(id).getSubTaskIdList();
+            List<Integer> subTasks = epicMap.get(id).getSubTaskIdList();
 
             for (Integer subTaskId : subTasks) {
                 subTaskMap.remove(subTaskId);
@@ -195,7 +185,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         int epicId = subTaskMap.get(id).getEpicId();
-        ArrayList<Integer> subTasks = epicMap.get(epicId).getSubTaskIdList();
+        List<Integer> subTasks = epicMap.get(epicId).getSubTaskIdList();
 
         for (Integer subTaskId : subTasks) {
             if (subTaskId == id) {
@@ -208,13 +198,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     // 7. Получение списка всех подзадач определённого эпика
     @Override
-    public ArrayList<SubTask> gettingSubTasksOfEpic(int epicId) {
+    public List<SubTask> getSubTasksOfEpic(int epicId) {
         if (epicMap.get(epicId).getSubTaskIdList().isEmpty()) {
             return null;
         }
 
-        ArrayList<SubTask> subTasks = new ArrayList<>();
-        ArrayList<Integer> subTaskIds = epicMap.get(epicId).getSubTaskIdList();
+        List<SubTask> subTasks = new ArrayList<>();
+        List<Integer> subTaskIds = epicMap.get(epicId).getSubTaskIdList();
 
         for (Integer subTask : subTaskIds) {
             subTasks.add(subTaskMap.get(subTask));
@@ -231,7 +221,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         Epic tempEpic = epicMap.get(epicId);
-        ArrayList<Integer> subTaskIdList = tempEpic.getSubTaskIdList();
+        List<Integer> subTaskIdList = tempEpic.getSubTaskIdList();
 
         int countNew = 0;
         int countDone = 0;

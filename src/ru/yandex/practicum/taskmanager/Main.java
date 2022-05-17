@@ -29,11 +29,11 @@ public class Main {
            Если код рабочий, то история просмотров задач будет отображаться корректно
         */
 
-        manager.gettingTaskById(0);
+        manager.getTaskById(0);
         System.out.println(manager.getHistoryManager().getHistory());
-        manager.gettingEpicById(2);
+        manager.getEpicById(2);
         System.out.println(manager.getHistoryManager().getHistory());
-        manager.gettingSubTaskById(3);
+        manager.getSubTaskById(3);
         System.out.println(manager.getHistoryManager().getHistory());
 
     }
