@@ -108,21 +108,23 @@ public class InMemoryTaskManager implements TaskManager {
     // 4. Создание. Сам объект должен передаваться в качестве параметра
     @Override
     public void createTask(Task task) {
-        taskMap.put(generateId(), task);
+        task.setId(generateId());
+        taskMap.put(task.getId(), task);
     }
 
     @Override
     public void createEpic(Epic epic) {
-        epicMap.put(generateId(), epic);
+        epic.setId(generateId());
+        epicMap.put(epic.getId(), epic);
     }
 
     @Override
     public void createSubTask(SubTask subTask) {
-        int id = generateId();
+        subTask.setId(generateId());
         int epicId = subTask.getEpicId();
 
-        subTaskMap.put(id, subTask);
-        epicMap.get(epicId).setSubTaskIdList(id);
+        subTaskMap.put(subTask.getId(), subTask);
+        epicMap.get(epicId).setSubTaskIdList(subTask.getId());
     }
 
     // 5. Обновление. Новая версия объекта с верным идентификатором передаются в виде параметра
@@ -160,6 +162,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeTaskById(int id) {
         taskMap.remove(id);
+        historyManager.remove(id);
     }
 
     @Override
@@ -173,9 +176,11 @@ public class InMemoryTaskManager implements TaskManager {
 
             for (Integer subTaskId : subTasks) {
                 subTaskMap.remove(subTaskId);
+                historyManager.remove(subTaskId);
             }
         }
         epicMap.remove(id);
+        historyManager.remove(id);
     }
 
     @Override
@@ -193,6 +198,7 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
         subTaskMap.remove(id);
+        historyManager.remove(id);
         checkStatus(epicId);
     }
 

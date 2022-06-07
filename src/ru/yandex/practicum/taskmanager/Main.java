@@ -12,7 +12,7 @@ public class Main {
 
         TaskManager manager = Managers.getDefault();
 
-        //Создайте несколько задач разного типа.
+        //Создайте две задачи, эпик с тремя подзадачами и эпик без подзадач.
         manager.createTask(new Task("Прочитать книгу", "Core Java"));
         manager.createTask(new Task("Посмотреть фильм", "The Batman"));
 
@@ -20,21 +20,44 @@ public class Main {
         manager.createEpic(new Epic("Переезд", "В другую страну"));
         manager.createSubTask(new SubTask("Информация", "Зайти на сайт страны", 2));
         manager.createSubTask(new SubTask("Квартира", "Найти квартиру для съема", 2));
+        manager.createSubTask(new SubTask("Мебель", "Заказать мебель", 2));
 
         manager.createEpic(new Epic("Закупка", "Купить продукты на завтра"));
-        manager.createSubTask(new SubTask("Список", "Написать список товаров", 5));
 
-
-        /* Вызовите разные методы интерфейса TaskManager и напечатайте историю просмотров после каждого вызова.
-           Если код рабочий, то история просмотров задач будет отображаться корректно
+        /* Запросите созданные задачи несколько раз в разном порядке.
+           После каждого запроса выведите историю и убедитесь, что в ней нет повторов.
         */
 
+        manager.getTaskById(1);
         manager.getTaskById(0);
-        System.out.println(manager.getHistoryManager().getHistory());
+        manager.getTaskById(1);
         manager.getEpicById(2);
-        System.out.println(manager.getHistoryManager().getHistory());
+        manager.getEpicById(6);
+        manager.getEpicById(2);
         manager.getSubTaskById(3);
+        manager.getSubTaskById(3);
+
         System.out.println(manager.getHistoryManager().getHistory());
 
+        manager.getTaskById(0);
+        manager.getTaskById(0);
+        manager.getTaskById(1);
+        manager.getEpicById(6);
+        manager.getEpicById(2);
+        manager.getEpicById(6);
+        manager.getSubTaskById(3);
+        manager.getSubTaskById(4);
+        manager.getSubTaskById(5);
+        manager.getSubTaskById(4);
+
+        System.out.println(manager.getHistoryManager().getHistory());
+
+        //Удалите задачу, которая есть в истории, и проверьте, что при печати она не будет выводиться.
+        manager.removeTaskById(0);
+        System.out.println(manager.getHistoryManager().getHistory());
+
+        //Удалите эпик с тремя подзадачами и убедитесь, что из истории удалился как сам эпик, так и все его подзадачи.
+        manager.removeEpicById(2);
+        System.out.println(manager.getHistoryManager().getHistory());
     }
 }
