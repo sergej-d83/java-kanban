@@ -1,35 +1,35 @@
 package ru.yandex.practicum.taskmanager.manager.historymanager;
 
-public class Node<Task> {
-    private Task data;
-    private Node<Task> previous;
-    private Node<Task> next;
+public class Node<T> {
+    private final T data;
+    private Node<T> previous;
+    private Node<T> next;
 
-    Node(Node<Task> previous, Task data, Node<Task> next) {
+    Node(Node<T> previous, T data, Node<T> next) {
         this.previous = previous;
         this.data = data;
         this.next = next;
     }
 
     //GETTER
-    public Task getData() {
+    public T getData() {
         return data;
     }
 
-    public Node<Task> getPrevious() {
+    public Node<T> getPrevious() {
         return previous;
     }
 
-    public Node<Task> getNext() {
+    public Node<T> getNext() {
         return next;
     }
 
     //SETTER
-    public void setPrevious(Node<Task> previous) {
+    public void setPrevious(Node<T> previous) {
         this.previous = previous;
     }
 
-    public void setNext(Node<Task> next) {
+    public void setNext(Node<T> next) {
         this.next = next;
     }
 }

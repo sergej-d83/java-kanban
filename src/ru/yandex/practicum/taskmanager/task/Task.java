@@ -3,8 +3,8 @@ package ru.yandex.practicum.taskmanager.task;
 
 public class Task {
 
-    protected String taskName;
-    protected String taskDescription;
+    protected final String taskName;
+    protected final String taskDescription;
     protected Status status;
     protected int id;
 
