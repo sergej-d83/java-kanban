@@ -7,17 +7,14 @@ import java.util.Map;
 
 import ru.yandex.practicum.taskmanager.manager.Managers;
 import ru.yandex.practicum.taskmanager.manager.historymanager.HistoryManager;
-import ru.yandex.practicum.taskmanager.task.SubTask;
-import ru.yandex.practicum.taskmanager.task.Task;
-import ru.yandex.practicum.taskmanager.task.Status;
-import ru.yandex.practicum.taskmanager.task.Epic;
+import ru.yandex.practicum.taskmanager.task.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
     private int id;
-    private final Map<Integer, Task> taskMap;
-    private final Map<Integer, Epic> epicMap;
-    private final Map<Integer, SubTask> subTaskMap;
+    protected static Map<Integer, Task> taskMap;
+    protected static Map<Integer, Epic> epicMap;
+    protected static Map<Integer, SubTask> subTaskMap;
     private final HistoryManager historyManager;
 
     public InMemoryTaskManager() {
@@ -25,7 +22,7 @@ public class InMemoryTaskManager implements TaskManager {
         taskMap = new HashMap<>();
         epicMap = new HashMap<>();
         subTaskMap = new HashMap<>();
-        id = 0;
+        this.id = 1;
     }
 
     @Override
@@ -109,18 +106,21 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void createTask(Task task) {
         task.setId(generateId());
+        task.setType(TaskType.TASK);
         taskMap.put(task.getId(), task);
     }
 
     @Override
     public void createEpic(Epic epic) {
         epic.setId(generateId());
+        epic.setType(TaskType.EPIC);
         epicMap.put(epic.getId(), epic);
     }
 
     @Override
     public void createSubTask(SubTask subTask) {
         subTask.setId(generateId());
+        subTask.setType(TaskType.SUBTASK);
         int epicId = subTask.getEpicId();
 
         subTaskMap.put(subTask.getId(), subTask);
