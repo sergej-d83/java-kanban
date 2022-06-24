@@ -11,10 +11,10 @@ import ru.yandex.practicum.taskmanager.task.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private int id;
-    protected static Map<Integer, Task> taskMap;
-    protected static Map<Integer, Epic> epicMap;
-    protected static Map<Integer, SubTask> subTaskMap;
+    protected int id;
+    private final Map<Integer, Task> taskMap;
+    private final Map<Integer, Epic> epicMap;
+    private final Map<Integer, SubTask> subTaskMap;
     private final HistoryManager historyManager;
 
     public InMemoryTaskManager() {
@@ -22,12 +22,52 @@ public class InMemoryTaskManager implements TaskManager {
         taskMap = new HashMap<>();
         epicMap = new HashMap<>();
         subTaskMap = new HashMap<>();
-        this.id = 1;
+        id = 0;
     }
 
     @Override
     public int generateId() {
         return id++;
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public int getId() {
+        return this.id;
+    }
+
+    @Override
+    public Map<Integer, Task> getTaskMap() {
+        return taskMap;
+    }
+
+    @Override
+    public Map<Integer, Epic> getEpicMap() {
+        return epicMap;
+    }
+
+    @Override
+    public Map<Integer, SubTask> getSubTaskMap() {
+        return subTaskMap;
+    }
+
+    @Override
+    public void setTaskMap(int id, Task task) {
+        this.taskMap.put(id, task);
+    }
+
+    @Override
+    public void setEpicMap(int id, Epic epic) {
+        this.epicMap.put(id, epic);
+    }
+
+    @Override
+    public void setSubTaskMap(int id, SubTask subTask) {
+        this.subTaskMap.put(id, subTask);
     }
 
     @Override

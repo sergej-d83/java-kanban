@@ -4,7 +4,12 @@ import ru.yandex.practicum.taskmanager.exceptions.ManagerSaveException;
 import ru.yandex.practicum.taskmanager.manager.historymanager.HistoryManager;
 import ru.yandex.practicum.taskmanager.task.*;
 
-import java.io.*;
+import java.io.File;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -40,20 +45,25 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 Task task = manager.taskFromString(linesFromFile.get(i));
                 TaskType type = Objects.requireNonNull(task).getType();
 
-                if (type == TaskType.TASK) {
-                    taskMap.put(task.getId(), task);
+                if (task.getType() == TaskType.TASK) {
+                    manager.setTaskMap(task.getId(), task);
                 } else if (type == TaskType.EPIC) {
-                    epicMap.put(task.getId(), (Epic) task);
+                    manager.setEpicMap(task.getId(), (Epic) task);
                 } else if (type == TaskType.SUBTASK) {
                     SubTask subTask = (SubTask) task;
 
                     int epicId = subTask.getEpicId();
-                    subTaskMap.put(subTask.getId(), subTask);
-                    epicMap.get(epicId).setSubTaskIdList(subTask.getId());
+                    manager.setSubTaskMap(task.getId(), (SubTask) task);
+                    manager.getEpicMap().get(epicId).setSubTaskIdList(subTask.getId());
                 } else {
                     System.out.println("Неизвестный тип задачи..");
                 }
             }
+
+            //Восстанавливаем ID
+            manager.setId(manager.getTaskMap().size() +
+                          manager.getEpicMap().size() +
+                          manager.getSubTaskMap().size());
 
             //Восстанавливаем историю.
             List<Integer> historyIds = historyFromString(linesFromFile.get(linesFromFile.size() - 1));
@@ -70,18 +80,18 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return manager;
     }
 
-    public void save() {
+    private void save() {
 
         //Пишем все созданные задачи в один список.
         List<String> tasks = new ArrayList<>();
 
-        for (Task task : taskMap.values()) {
+        for (Task task : getTaskMap().values()) {
             tasks.add(taskToString(task));
         }
-        for (Task epic : epicMap.values()) {
+        for (Task epic : getEpicMap().values()) {
             tasks.add(taskToString(epic));
         }
-        for (Task subTask : subTaskMap.values()) {
+        for (Task subTask : getSubTaskMap().values()) {
             tasks.add(taskToString(subTask));
         }
 
@@ -107,8 +117,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private String taskToString(Task task) {
         StringBuilder line = new StringBuilder(String.format("%d,%S,%s,%S,%s", task.getId(), task.getType(),
-                                                                                     task.getTaskName(), task.getStatus(),
-                                                                                     task.getTaskDescription()));
+                                                                               task.getTaskName(), task.getStatus(),
+                                                                               task.getTaskDescription()));
 
         if (task instanceof SubTask) {
             line.append(String.format(",%d", ((SubTask) task).getEpicId()));
@@ -121,26 +131,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         switch (elements[1]) {
             case "TASK":
-                return new Task(
-                        Integer.parseInt(elements[0]),
-                        TaskType.valueOf(elements[1]),
-                        elements[2],
-                        Status.valueOf(elements[3]),
-                        elements[4]);
+                return new Task(Integer.parseInt(elements[0]), TaskType.valueOf(elements[1]), elements[2], Status.valueOf(elements[3]), elements[4]);
             case "EPIC":
-                return new Epic(
-                        Integer.parseInt(elements[0]),
-                        TaskType.valueOf(elements[1]),
-                        elements[2],
-                        Status.valueOf(elements[3]),
-                        elements[4]);
+                return new Epic(Integer.parseInt(elements[0]), TaskType.valueOf(elements[1]), elements[2], Status.valueOf(elements[3]), elements[4]);
             case "SUBTASK":
-                return new SubTask(
-                        Integer.parseInt(elements[0]),
-                        TaskType.valueOf(elements[1]),
-                        elements[2],
-                        Status.valueOf(elements[3]),
-                        elements[4], Integer.parseInt(elements[5]));
+                return new SubTask(Integer.parseInt(elements[0]), TaskType.valueOf(elements[1]), elements[2], Status.valueOf(elements[3]), elements[4], Integer.parseInt(elements[5]));
             default:
                 System.out.println("Неправильный тип задачи.");
                 return null;
@@ -240,7 +235,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public List<SubTask> getSubTasksOfEpic(int epicId) {
-        return super.getSubTasksOfEpic(epicId);
+    public void clearAllTasks() {
+        super.clearAllTasks();
+        save();
+    }
+
+    @Override
+    public void clearAllEpics() {
+        super.clearAllEpics();
+        save();
+    }
+
+    @Override
+    public void clearAllSubTasks() {
+        super.clearAllSubTasks();
+        save();
     }
 }

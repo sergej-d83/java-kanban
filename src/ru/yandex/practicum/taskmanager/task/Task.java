@@ -20,7 +20,7 @@ public class Task {
         this.type = type;
         this.taskName = taskName;
         this.status = status;
-        this.taskDescription= taskDescription;
+        this.taskDescription = taskDescription;
     }
 
     public int getId() {

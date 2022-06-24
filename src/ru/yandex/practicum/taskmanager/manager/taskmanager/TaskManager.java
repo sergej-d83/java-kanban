@@ -13,6 +13,22 @@ public interface TaskManager {
 
     int generateId();
 
+    void setId(int id);
+
+    int getId();
+
+    Map<Integer, Task> getTaskMap();
+
+    Map<Integer, Epic> getEpicMap();
+
+    Map<Integer, SubTask> getSubTaskMap();
+
+    void setTaskMap(int id, Task task);
+
+    void setEpicMap(int id, Epic epic);
+
+    void setSubTaskMap(int id, SubTask subTask);
+
     HistoryManager getHistoryManager();
 
     // Методы для каждого из типа задач(Задача/Эпик/Подзадача):
