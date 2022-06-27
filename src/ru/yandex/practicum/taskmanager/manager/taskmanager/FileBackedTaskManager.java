@@ -16,8 +16,8 @@ import java.util.Objects;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
-    private final String TASK_HEADER = "ID,TYPE,NAME,STATUS,DESCRIPTION,EPIC";
-    private final String HISTORY_HEADER = "HISTORY";
+    private static final String TASK_HEADER = "ID,TYPE,NAME,STATUS,DESCRIPTION,EPIC";
+    private static final String HISTORY_HEADER = "HISTORY";
 
     public FileBackedTaskManager(File file) {
         this.file = file;
@@ -62,8 +62,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
             //Восстанавливаем ID
             manager.setId(manager.getTaskMap().size() +
-                          manager.getEpicMap().size() +
-                          manager.getSubTaskMap().size());
+                    manager.getEpicMap().size() +
+                    manager.getSubTaskMap().size());
 
             //Восстанавливаем историю.
             List<Integer> historyIds = historyFromString(linesFromFile.get(linesFromFile.size() - 1));
@@ -75,88 +75,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
 
         } catch (IOException e) {
-            throw new ManagerSaveException("Не могу считать данные из файла...: " + file.getName(), e);
+            throw new ManagerSaveException("Не могу считать данные из файла...: " + file.getName());
         }
         return manager;
-    }
-
-    private void save() {
-
-        //Пишем все созданные задачи в один список.
-        List<String> tasks = new ArrayList<>();
-
-        for (Task task : getTaskMap().values()) {
-            tasks.add(taskToString(task));
-        }
-        for (Task epic : getEpicMap().values()) {
-            tasks.add(taskToString(epic));
-        }
-        for (Task subTask : getSubTaskMap().values()) {
-            tasks.add(taskToString(subTask));
-        }
-
-        //Пишем список и историю в файл.
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write(TASK_HEADER);
-            writer.newLine();
-
-            for (String line : tasks) {
-                writer.write(line);
-                writer.newLine();
-            }
-            writer.newLine();
-            writer.write(HISTORY_HEADER);
-            writer.newLine();
-            writer.write(historyToString(getHistoryManager()));
-
-        } catch (IOException e) {
-            throw new ManagerSaveException("Не могу записать данные в файл: " + file.getName(), e);
-        }
-
-    }
-
-    private String taskToString(Task task) {
-        StringBuilder line = new StringBuilder(String.format("%d,%S,%s,%S,%s", task.getId(), task.getType(),
-                                                                               task.getTaskName(), task.getStatus(),
-                                                                               task.getTaskDescription()));
-
-        if (task instanceof SubTask) {
-            line.append(String.format(",%d", ((SubTask) task).getEpicId()));
-        }
-        return line.toString();
-    }
-
-    private Task taskFromString(String value) {
-        String[] elements = value.split(",");
-
-        switch (elements[1]) {
-            case "TASK":
-                return new Task(Integer.parseInt(elements[0]), TaskType.valueOf(elements[1]), elements[2], Status.valueOf(elements[3]), elements[4]);
-            case "EPIC":
-                return new Epic(Integer.parseInt(elements[0]), TaskType.valueOf(elements[1]), elements[2], Status.valueOf(elements[3]), elements[4]);
-            case "SUBTASK":
-                return new SubTask(Integer.parseInt(elements[0]), TaskType.valueOf(elements[1]), elements[2], Status.valueOf(elements[3]), elements[4], Integer.parseInt(elements[5]));
-            default:
-                System.out.println("Неправильный тип задачи.");
-                return null;
-        }
-    }
-
-    private static String historyToString(HistoryManager manager) {
-        StringBuilder string = new StringBuilder();
-        for (Task task : manager.getHistory()) {
-            string.append(task.getId());
-            string.append(",");
-        }
-        return string.toString();
-    }
-
-    private static List<Integer> historyFromString(String value) {
-        List<Integer> history = new ArrayList<>();
-        for (String id : value.split(",")) {
-            history.add(Integer.parseInt(id));
-        }
-        return history;
     }
 
     @Override
@@ -250,5 +171,97 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     public void clearAllSubTasks() {
         super.clearAllSubTasks();
         save();
+    }
+
+    private void save() {
+
+        //Пишем все созданные задачи в один список.
+        List<String> tasks = new ArrayList<>();
+
+        for (Task task : getTaskMap().values()) {
+            tasks.add(taskToString(task));
+        }
+        for (Task epic : getEpicMap().values()) {
+            tasks.add(taskToString(epic));
+        }
+        for (Task subTask : getSubTaskMap().values()) {
+            tasks.add(taskToString(subTask));
+        }
+
+        //Пишем список и историю в файл.
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(TASK_HEADER);
+            writer.newLine();
+
+            for (String line : tasks) {
+                writer.write(line);
+                writer.newLine();
+            }
+            writer.newLine();
+            writer.write(HISTORY_HEADER);
+            writer.newLine();
+            writer.write(historyToString(getHistoryManager()));
+
+        } catch (IOException e) {
+            throw new ManagerSaveException("Не могу записать данные в файл: " + file.getName());
+        }
+
+    }
+
+    private String taskToString(Task task) {
+        StringBuilder line = new StringBuilder(String.format("%d,%S,%s,%S,%s", task.getId(), task.getType(),
+                                                                               task.getTaskName(), task.getStatus(),
+                                                                               task.getTaskDescription()));
+
+        if (task instanceof SubTask) {
+            line.append(String.format(",%d", ((SubTask) task).getEpicId()));
+        }
+        return line.toString();
+    }
+
+    private Task taskFromString(String value) {
+        String[] elements = value.split(",");
+
+        switch (elements[1]) {
+            case "TASK":
+                return new Task(Integer.parseInt(elements[0]),
+                                TaskType.valueOf(elements[1]),
+                                elements[2],
+                                Status.valueOf(elements[3]),
+                                elements[4]);
+            case "EPIC":
+                return new Epic(Integer.parseInt(elements[0]),
+                                TaskType.valueOf(elements[1]),
+                                elements[2],
+                                Status.valueOf(elements[3]),
+                                elements[4]);
+            case "SUBTASK":
+                return new SubTask(Integer.parseInt(elements[0]),
+                                   TaskType.valueOf(elements[1]),
+                                   elements[2],
+                                   Status.valueOf(elements[3]),
+                                   elements[4],
+                                   Integer.parseInt(elements[5]));
+            default:
+                System.out.println("Неправильный тип задачи.");
+                return null;
+        }
+    }
+
+    private static String historyToString(HistoryManager manager) {
+        StringBuilder string = new StringBuilder();
+        for (Task task : manager.getHistory()) {
+            string.append(task.getId());
+            string.append(",");
+        }
+        return string.toString();
+    }
+
+    private static List<Integer> historyFromString(String value) {
+        List<Integer> history = new ArrayList<>();
+        for (String id : value.split(",")) {
+            history.add(Integer.parseInt(id));
+        }
+        return history;
     }
 }
