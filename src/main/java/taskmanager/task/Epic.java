@@ -1,6 +1,8 @@
 package taskmanager.task;
 
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -8,15 +10,19 @@ import java.util.Objects;
 public class Epic extends Task {
 
     private final List<Integer> subTaskIdList;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    private Duration duration;
 
-    public Epic(String taskName, String taskDescription) {
-        super(taskName, taskDescription);
-        subTaskIdList = new ArrayList<>();
-    }
-
-    public Epic(int id, TaskType type, String taskName, Status status, String taskDescription) {
-        super(id, type, taskName, status, taskDescription);
-        subTaskIdList = new ArrayList<>();
+    public Epic(int id, String taskName, String taskDescription)
+    {
+        super(id, taskName, taskDescription);
+        this.subTaskIdList = new ArrayList<>();
+        this.startTime = null;
+        this.endTime = null;
+        this.duration = null;
+        this.status = Status.NEW;
+        this.type = TaskType.EPIC;
     }
 
     public void setSubTaskIdList(int id) {
@@ -28,12 +34,45 @@ public class Epic extends Task {
     }
 
     @Override
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    @Override
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    @Override
+    public Duration getDuration() {
+        return duration;
+    }
+
+    @Override
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    @Override
     public String toString() {
-        return "Epic {" +
-                "subTaskId = " + subTaskIdList +
-                ", taskName = '" + taskName + '\'' +
-                ", taskDescription = '" + taskDescription + '\'' +
-                ", status= '" + status + '\'' +
+        return "Epic{" +
+                "subTaskIdList=" + subTaskIdList +
+                ", taskName='" + taskName + '\'' +
+                ", taskDescription='" + taskDescription + '\'' +
+                ", status=" + status +
+                ", id=" + id +
+                ", type=" + type +
+                ", startTime=" + startTime +
+                ", duration=" + duration +
                 '}';
     }
 

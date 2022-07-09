@@ -27,10 +27,10 @@ public class Main {
         manager.createTask(new Task(manager.generateId(),"Task2", "Description", start2, duration));
         manager.createEpic(new Epic(manager.generateId(),"Epic1", "Description"));
         manager.createSubTask(new SubTask(manager.generateId(),"SubTask1", "Description",
-                start4, duration, 2));
+                start3, duration, 2));
         manager.createSubTask(new SubTask(manager.generateId(),"SubTask2", "Description",
                 start4, duration, 2));
-        manager.createSubTask(new SubTask(manager.generateId(),"Epic1", "Description",
+        manager.createSubTask(new SubTask(manager.generateId(),"SubTask1", "Description",
                 start5, duration, 2));
         //Запросите некоторые из них, чтобы заполнилась история просмотра.
         manager.getTaskById(0);

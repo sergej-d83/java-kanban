@@ -37,9 +37,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
 
             //Восстанавливаем задачи.
-            for (int i = 0; i < linesFromFile.size(); i++) {
+            for (String s : linesFromFile) {
 
-                Task task = manager.taskFromString(linesFromFile.get(i));
+                Task task = manager.taskFromString(s);
+
+                if (task == null) {
+                    continue;
+                }
+
                 TaskType type = Objects.requireNonNull(task).getType();
 
                 if (task.getType() == TaskType.TASK) {
@@ -212,6 +217,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 task.getStatus()));
 
         if (task instanceof Epic) {
+            if (task.getStartTime() != null && task.getDuration() != null) {
+                line.append(String.format("%s,%s",
+                        task.getStartTime().format(Task.formatter),
+                        task.getDuration().toMinutes()));
+            }
             return line.toString();
         } else if (task instanceof SubTask) {
             line.append(String.format("%s,%s,%d",
@@ -239,7 +249,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         LocalDateTime.parse(elements[5], Task.formatter),
                         Duration.ofMinutes(Long.parseLong(elements[6])));
             case "EPIC":
-                return new Epic(Integer.parseInt(elements[0]), elements[2], elements[3]);
+                Epic epic = new Epic(Integer.parseInt(elements[0]), elements[2], elements[3]);
+                if (elements.length > 5 && elements[5] != null && elements[6] != null) {
+                    epic.setStartTime(LocalDateTime.parse(elements[5], Task.formatter));
+                    epic.setDuration(Duration.ofMinutes(Long.parseLong(elements[6])));
+                }
+                return epic;
             case "SUBTASK":
                 return new SubTask(Integer.parseInt(elements[0]), elements[2], elements[3],
                         LocalDateTime.parse(elements[5], Task.formatter),

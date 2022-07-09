@@ -8,6 +8,7 @@ import taskmanager.task.Task;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface TaskManager {
 
@@ -66,11 +67,11 @@ public interface TaskManager {
 
     // 5. Обновление. Новая версия объекта с верным идентификатором передаются в виде параметра
 
-    void updateTask(Task task, int id, Status status);
+    void updateTask(Task task);
 
-    void updateEpic(Epic epic, int id);
+    void updateEpic(Epic epic);
 
-    void updateSubTask(SubTask subTask, int id, Status status);
+    void updateSubTask(SubTask subTask);
 
     // 6. Удаление по идентификатору
 
@@ -85,4 +86,8 @@ public interface TaskManager {
     List<SubTask> getSubTasksOfEpic(int epicId);
 
     Status checkStatus(int epicId);
+
+    Set<Task> getPrioritizedTasks();
+
+    void calculateEpicTimeAndDuration(Epic epic);
 }

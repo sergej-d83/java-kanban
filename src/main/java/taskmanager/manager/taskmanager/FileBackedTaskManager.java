@@ -2,16 +2,21 @@ package taskmanager.manager.taskmanager;
 
 import taskmanager.exceptions.ManagerSaveException;
 import taskmanager.manager.historymanager.HistoryManager;
-import taskmanager.task.*;
+import taskmanager.task.Epic;
+import taskmanager.task.SubTask;
+import taskmanager.task.Task;
+import taskmanager.task.TaskType;
 
 import java.io.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
-    private static final String TASK_HEADER = "ID,TYPE,NAME,STATUS,DESCRIPTION,EPIC";
+    private static final String TASK_HEADER = "ID,TYPE,NAME,DESCRIPTION,STATUS,START,DURATION,EPIC";
     private static final String HISTORY_HEADER = "HISTORY";
 
     public FileBackedTaskManager(File file) {
@@ -35,9 +40,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
 
             //Восстанавливаем задачи.
-            for (int i = 0; i < (linesFromFile.size() - 1); i++) {
+            for (String s : linesFromFile) {
 
-                Task task = manager.taskFromString(linesFromFile.get(i));
+                Task task = manager.taskFromString(s);
+
+                if (task == null) {
+                    continue;
+                }
+
                 TaskType type = Objects.requireNonNull(task).getType();
 
                 if (task.getType() == TaskType.TASK) {
@@ -117,20 +127,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void updateTask(Task task, int id, Status status) {
-        super.updateTask(task, id, status);
+    public void updateTask(Task task) {
+        super.updateTask(task);
         save();
     }
 
     @Override
-    public void updateEpic(Epic epic, int id) {
-        super.updateEpic(epic, id);
+    public void updateEpic(Epic epic) {
+        super.updateEpic(epic);
         save();
     }
 
     @Override
-    public void updateSubTask(SubTask subTask, int id, Status status) {
-        super.updateSubTask(subTask, id, status);
+    public void updateSubTask(SubTask subTask) {
+        super.updateSubTask(subTask);
         save();
     }
 
@@ -205,14 +215,28 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     private String taskToString(Task task) {
-        StringBuilder line = new StringBuilder(String.format("%d,%S,%s,%S,%s", task.getId(), task.getType(),
-                                                                               task.getTaskName(), task.getStatus(),
-                                                                               task.getTaskDescription()));
+        StringBuilder line = new StringBuilder(String.format("%d,%S,%s,%s,%S,",
+                task.getId(), task.getType(), task.getTaskName(), task.getTaskDescription(),
+                task.getStatus()));
 
-        if (task instanceof SubTask) {
-            line.append(String.format(",%d", ((SubTask) task).getEpicId()));
+        if (task instanceof Epic) {
+            if (task.getStartTime() != null && task.getDuration() != null) {
+                line.append(String.format("%s,%s",
+                        task.getStartTime().format(Task.formatter),
+                        task.getDuration().toMinutes()));
+            }
+            return line.toString();
+        } else if (task instanceof SubTask) {
+            line.append(String.format("%s,%s,%d",
+                    task.getStartTime().format(Task.formatter),
+                    task.getDuration().toMinutes(), ((SubTask) task).getEpicId()));
+            return line.toString();
+        } else {
+            line.append(String.format("%s,%s",
+                    task.getStartTime().format(Task.formatter),
+                    task.getDuration().toMinutes()));
+            return line.toString();
         }
-        return line.toString();
     }
 
     private Task taskFromString(String value) {
@@ -224,24 +248,21 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         switch (elements[1]) {
             case "TASK":
-                return new Task(Integer.parseInt(elements[0]),
-                                TaskType.valueOf(elements[1]),
-                                elements[2],
-                                Status.valueOf(elements[3]),
-                                elements[4]);
+                return new Task(Integer.parseInt(elements[0]), elements[2], elements[3],
+                        LocalDateTime.parse(elements[5], Task.formatter),
+                        Duration.ofMinutes(Long.parseLong(elements[6])));
             case "EPIC":
-                return new Epic(Integer.parseInt(elements[0]),
-                                TaskType.valueOf(elements[1]),
-                                elements[2],
-                                Status.valueOf(elements[3]),
-                                elements[4]);
+                Epic epic = new Epic(Integer.parseInt(elements[0]), elements[2], elements[3]);
+                if (elements.length > 5 && elements[5] != null && elements[6] != null) {
+                    epic.setStartTime(LocalDateTime.parse(elements[5], Task.formatter));
+                    epic.setDuration(Duration.ofMinutes(Long.parseLong(elements[6])));
+                }
+                return epic;
             case "SUBTASK":
-                return new SubTask(Integer.parseInt(elements[0]),
-                                   TaskType.valueOf(elements[1]),
-                                   elements[2],
-                                   Status.valueOf(elements[3]),
-                                   elements[4],
-                                   Integer.parseInt(elements[5]));
+                return new SubTask(Integer.parseInt(elements[0]), elements[2], elements[3],
+                        LocalDateTime.parse(elements[5], Task.formatter),
+                        Duration.ofMinutes(Long.parseLong(elements[6])),
+                        Integer.parseInt(elements[7]));
             default:
                 System.out.println("Неправильный тип задачи.");
                 return null;
