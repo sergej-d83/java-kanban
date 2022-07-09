@@ -7,6 +7,8 @@ import taskmanager.task.SubTask;
 import taskmanager.task.Task;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,8 +29,8 @@ class FileBackedTaskManagerTest extends InMemoryTaskManagerTest {
 
     @Test
     public void epicWithoutSubTasks(){
-        manager1.createTask(new Task("Task", "Description"));
-        manager1.createEpic(new Epic("Epic", "Description"));
+        manager1.createTask(new Task(0, "Task", "Description", time1, duration));
+        manager1.createEpic(new Epic(1, "Epic", "Description"));
 
         assertEquals(1, manager1.getTaskMap().size());
         assertEquals(1, manager1.getEpicMap().size());
@@ -43,9 +45,10 @@ class FileBackedTaskManagerTest extends InMemoryTaskManagerTest {
 
     @Test
     public  void emptyHistoryTest() {
-        manager1.createTask(new Task("Task", "Description"));
-        manager1.createEpic(new Epic("Epic", "Description"));
-        manager1.createSubTask(new SubTask("SubTask", "Description", 1));
+        manager1.createTask(new Task(0, "Task", "Description", time1, duration));
+        manager1.createEpic(new Epic(1, "Epic", "Description"));
+        manager1.createSubTask(new SubTask(2, "SubTask", "Description",
+                time2, duration, 1));
 
         assertEquals(1, manager1.getTaskMap().size());
         assertEquals(1, manager1.getEpicMap().size());

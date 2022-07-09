@@ -4,10 +4,9 @@ import taskmanager.manager.Managers;
 import taskmanager.manager.historymanager.HistoryManager;
 import taskmanager.task.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
@@ -16,6 +15,22 @@ public class InMemoryTaskManager implements TaskManager {
     private final Map<Integer, Epic> epicMap;
     private final Map<Integer, SubTask> subTaskMap;
     private final HistoryManager historyManager;
+
+    private final Set<Task> prioritizedTasks = new TreeSet<>((time1, time2) -> {
+        if (time1.getStartTime() == null && time2.getStartTime() == null) {
+            return 1;
+        } else if (time1.getStartTime().isBefore(time2.getStartTime())) {
+            return -1;
+        } else if (time1.getStartTime().isAfter(time2.getStartTime())) {
+            return 1;
+        } else if (time1.getStartTime() == null) {
+                return 1;
+        } else if (time2.getStartTime() == null) {
+            return -1;
+        } else {
+            return 0;
+        }
+    });
 
     public InMemoryTaskManager() {
         historyManager = Managers.getDefaultHistory();
@@ -38,6 +53,11 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public int getId() {
         return this.id;
+    }
+
+    @Override
+    public Set<Task> getPrioritizedTasks() {
+        return prioritizedTasks;
     }
 
     @Override
@@ -145,100 +165,122 @@ public class InMemoryTaskManager implements TaskManager {
     // 4. Создание. Сам объект должен передаваться в качестве параметра
     @Override
     public void createTask(Task task) {
-        task.setId(generateId());
-        task.setType(TaskType.TASK);
-        taskMap.put(task.getId(), task);
+        if (task != null) {
+            validateTime(task);
+
+            taskMap.put(task.getId(), task);
+            prioritizedTasks.add(task);
+        }
     }
 
     @Override
     public void createEpic(Epic epic) {
-        epic.setId(generateId());
-        epic.setType(TaskType.EPIC);
         epicMap.put(epic.getId(), epic);
     }
 
     @Override
     public void createSubTask(SubTask subTask) {
-        subTask.setId(generateId());
-        subTask.setType(TaskType.SUBTASK);
-        int epicId = subTask.getEpicId();
+        if (subTask != null) {
+            validateTime(subTask);
 
-        subTaskMap.put(subTask.getId(), subTask);
-        epicMap.get(epicId).setSubTaskIdList(subTask.getId());
+            int epicId = subTask.getEpicId();
+
+            subTaskMap.put(subTask.getId(), subTask);
+            epicMap.get(epicId).setSubTaskIdList(subTask.getId());
+            calculateEpicTimeAndDuration(epicMap.get(epicId));
+            prioritizedTasks.add(subTask);
+        }
     }
 
     // 5. Обновление. Новая версия объекта с верным идентификатором передаются в виде параметра
     @Override
-    public void updateTask(Task task, int id, Status status) {
-        if (taskMap.containsKey(id)) {
-            task.setStatus(status);
-            taskMap.put(id, task);
+    public void updateTask(Task task) {
+        if (taskMap.containsKey(task.getId())) {
+            taskMap.put(task.getId(), task);
+            prioritizedTasks.add(task);
+        } else {
+            throw new IllegalArgumentException("Задачи с таким номером нет в списке!");
         }
     }
 
     @Override
-    public void updateEpic(Epic epic, int id) {
-        if (epicMap.containsKey(id)) {
-            if (!epicMap.get(id).getSubTaskIdList().isEmpty()) {
+    public void updateEpic(Epic epic) {
+        if (epicMap.containsKey(epic.getId())) {
+            if (!epicMap.get(epic.getId()).getSubTaskIdList().isEmpty()) {
                 List<Integer> subTasks = epicMap.get(id).getSubTaskIdList();
 
                 for (Integer subId : subTasks) {
                     epic.setSubTaskIdList(subId);
                 }
             }
-            epic.setStatus(checkStatus(id));
-            epicMap.put(id, epic);
+            epic.setStatus(checkStatus(epic.getId()));
+            epicMap.put(epic.getId(), epic);
+            calculateEpicTimeAndDuration(epic);
+        } else {
+            throw new IllegalArgumentException("Задачи с таким номером нет в списке!");
         }
     }
 
     @Override
-    public void updateSubTask(SubTask subTask, int id, Status status) {
-        int epicId = subTask.getEpicId();
+    public void updateSubTask(SubTask subTask) {
 
-        if (subTaskMap.containsKey(id)) {
-            subTask.setStatus(status);
-            subTaskMap.put(id, subTask);
+        if (subTaskMap.containsKey(subTask.getId())) {
+            int epicId = subTask.getEpicId();
+            subTaskMap.put(subTask.getId(), subTask);
             epicMap.get(epicId).setStatus(checkStatus(epicId));
+            calculateEpicTimeAndDuration(epicMap.get(epicId));
+            prioritizedTasks.add(subTask);
+        } else {
+            throw new IllegalArgumentException("Задачи с таким номером нет в списке!");
         }
     }
 
     // 6. Удаление по идентификатору
     @Override
     public void removeTaskById(int id) {
-        taskMap.remove(id);
-        historyManager.remove(id);
+        if (taskMap.containsKey(id)) {
+            prioritizedTasks.remove(taskMap.get(id));
+            taskMap.remove(id);
+            historyManager.remove(id);
+        } else {
+            throw new IllegalArgumentException("Задачи с таким номером нет в списке!");
+        }
     }
 
     @Override
     public void removeEpicById(int id) {
-        if (!epicMap.containsKey(id)) {
-            return;
-        }
+        if (epicMap.containsKey(id)) {
 
-        if (!epicMap.get(id).getSubTaskIdList().isEmpty()) {
-            List<Integer> subTasks = epicMap.get(id).getSubTaskIdList();
+            if (!epicMap.get(id).getSubTaskIdList().isEmpty()) {
+                List<Integer> subTasks = epicMap.get(id).getSubTaskIdList();
 
-            for (Integer subTaskId : subTasks) {
-                subTaskMap.remove(subTaskId);
-                historyManager.remove(subTaskId);
+                for (Integer subTaskId : subTasks) {
+                    subTaskMap.remove(subTaskId);
+                    historyManager.remove(subTaskId);
+                }
             }
+            epicMap.remove(id);
+            historyManager.remove(id);
+        } else {
+            throw new IllegalArgumentException("Задачи с таким номером нет в списке!");
         }
-        epicMap.remove(id);
-        historyManager.remove(id);
     }
 
     @Override
     public void removeSubTaskById(int id) {
-        if (!subTaskMap.containsKey(id)) {
-            return;
+        if (subTaskMap.containsKey(id)) {
+
+            int epicId = subTaskMap.get(id).getEpicId();
+
+            epicMap.get(epicId).getSubTaskIdList().remove(Integer.valueOf(id));
+            prioritizedTasks.remove(subTaskMap.get(id));
+            subTaskMap.remove(id);
+            calculateEpicTimeAndDuration(epicMap.get(epicId));
+            historyManager.remove(id);
+            epicMap.get(epicId).setStatus(checkStatus(id));
+        } else {
+            throw new IllegalArgumentException("Задачи с таким номером нет в списке!");
         }
-
-        int epicId = subTaskMap.get(id).getEpicId();
-
-        epicMap.get(epicId).getSubTaskIdList().remove(Integer.valueOf(id));
-        subTaskMap.remove(id);
-        historyManager.remove(id);
-        epicMap.get(epicId).setStatus(checkStatus(id));
     }
 
     // 7. Получение списка всех подзадач определённого эпика
@@ -255,6 +297,39 @@ public class InMemoryTaskManager implements TaskManager {
             subTasks.add(subTaskMap.get(subTask));
         }
         return subTasks;
+    }
+
+    @Override
+    public void calculateEpicTimeAndDuration(Epic epic) {
+        if (!epic.getSubTaskIdList().isEmpty()) {
+            List<SubTask> subTasksList = new ArrayList<>();
+
+            for (Integer id : epic.getSubTaskIdList()) {
+                subTasksList.add(subTaskMap.get(id));
+            }
+
+            LocalDateTime startTime = epic.getStartTime();
+            LocalDateTime endTime = epic.getEndTime();
+            Duration duration = epic.getDuration();
+
+            for (SubTask task : subTasksList) {
+                if (startTime == null || task.getStartTime().isBefore(startTime)) {
+                    startTime = task.getStartTime();
+                }
+                if (endTime == null || task.getEndTime().isAfter(endTime)) {
+                    endTime = task.getEndTime();
+                }
+                if (duration == null) {
+                    duration = task.getDuration();
+                } else {
+                    duration = duration.plus(task.getDuration());
+                }
+            }
+
+            epic.setDuration(duration);
+            epic.setEndTime(endTime);
+            epic.setStartTime(startTime);
+        }
     }
 
     @Override
@@ -285,6 +360,22 @@ public class InMemoryTaskManager implements TaskManager {
             return Status.DONE;
         } else {
             return Status.IN_PROGRESS;
+        }
+    }
+
+    public <T extends Task> void validateTime(T task) {
+
+        if (task.getStartTime() != null || task.getDuration() != null) {
+            LocalDateTime startTime = task.getStartTime();
+            Set<Task> taskList = getPrioritizedTasks();
+
+            for (Task t : taskList) {
+                if (!startTime.isBefore(t.getStartTime()) && !startTime.isAfter(t.getEndTime())) {
+                    throw new IllegalArgumentException("Задача пересекается по времени с другой задачей. "
+                            + t.getStartTime().format(Task.formatter)
+                            + " - " + t.getEndTime().format(Task.formatter));
+                }
+            }
         }
     }
 }

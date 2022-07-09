@@ -2,30 +2,36 @@ package taskmanager;
 
 import taskmanager.manager.Managers;
 import taskmanager.manager.taskmanager.FileBackedTaskManager;
-import taskmanager.task.Epic;
-import taskmanager.task.SubTask;
-import taskmanager.task.Task;
+import taskmanager.task.*;
 
 import java.io.File;
-import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         FileBackedTaskManager manager = Managers.getFileBackedManager(new File("tasks.csv"));
 
+        LocalDateTime start1 = LocalDateTime.of(2022, 7, 7, 16, 30);
+        LocalDateTime start2 = LocalDateTime.of(2022, 7, 7, 17, 30);
+        LocalDateTime start3 = LocalDateTime.of(2022, 7, 7, 18, 30);
+        LocalDateTime start4 = LocalDateTime.of(2022, 7, 7, 19, 30);
+        LocalDateTime start5 = LocalDateTime.of(2022, 7, 7, 20, 30);
+
+        Duration duration = Duration.ofMinutes(30);
+
         //Заведите несколько разных задач, эпиков и подзадач.
-        manager.createTask(new Task("Прочитать книгу", "Core Java"));
-        manager.createTask(new Task("Посмотреть фильм", "The Batman"));
-
-        manager.createEpic(new Epic("Переезд", "В другую страну"));
-        manager.createSubTask(new SubTask("Информация", "Зайти на сайт страны", 2));
-        manager.createSubTask(new SubTask("Квартира", "Найти квартиру для съема", 2));
-        manager.createSubTask(new SubTask("Мебель", "Заказать мебель", 2));
-
-        manager.createEpic(new Epic("Закупка", "Купить продукты на завтра"));
-
+        manager.createTask(new Task(manager.generateId(),"Task1", "Description", start1, duration));
+        manager.createTask(new Task(manager.generateId(),"Task2", "Description", start2, duration));
+        manager.createEpic(new Epic(manager.generateId(),"Epic1", "Description"));
+        manager.createSubTask(new SubTask(manager.generateId(),"SubTask1", "Description",
+                start4, duration, 2));
+        manager.createSubTask(new SubTask(manager.generateId(),"SubTask2", "Description",
+                start4, duration, 2));
+        manager.createSubTask(new SubTask(manager.generateId(),"Epic1", "Description",
+                start5, duration, 2));
         //Запросите некоторые из них, чтобы заполнилась история просмотра.
         manager.getTaskById(0);
         manager.getTaskById(1);
@@ -46,15 +52,10 @@ public class Main {
         Проверьте, что история просмотра восстановилась верно и все задачи, эпики, подзадачи,
         которые были в старом, есть в новом менеджере.
          */
-        System.out.println("Данные востановленны из файла.");
+        System.out.println("Данные восстановились из файла.");
         System.out.println(fileBackedTaskManager.getHistoryManager().getHistory());
 
-        fileBackedTaskManager.createTask(new Task("Task 1", "Описание"));
-        fileBackedTaskManager.createEpic(new Epic("Epic1", "Описание"));
-        fileBackedTaskManager.createSubTask(new SubTask("SubTask1", "Описание", 8));
-        fileBackedTaskManager.getTaskById(9);
-        fileBackedTaskManager.getEpicById(8);
-        fileBackedTaskManager.getSubTaskById(9);
-        System.out.println(fileBackedTaskManager.getHistoryManager().getHistory());
+
+        manager.getPrioritizedTasks().forEach(System.out::println);
     }
 }
