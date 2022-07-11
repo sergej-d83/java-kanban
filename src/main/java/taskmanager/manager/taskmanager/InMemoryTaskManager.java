@@ -27,7 +27,7 @@ public class InMemoryTaskManager implements TaskManager {
         } else if (time1.getStartTime().isAfter(time2.getStartTime())) {
             return 1;
         } else if (time1.getStartTime() == null) {
-                return 1;
+            return 1;
         } else if (time2.getStartTime() == null) {
             return -1;
         } else {
@@ -199,6 +199,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateTask(Task task) {
         if (taskMap.containsKey(task.getId())) {
+            validateTime(task);
             taskMap.put(task.getId(), task);
             prioritizedTasks.add(task);
         } else {
@@ -228,6 +229,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void updateSubTask(SubTask subTask) {
 
         if (subTaskMap.containsKey(subTask.getId())) {
+            validateTime(subTask);
             int epicId = subTask.getEpicId();
             subTaskMap.put(subTask.getId(), subTask);
             epicMap.get(epicId).setStatus(checkStatus(epicId));

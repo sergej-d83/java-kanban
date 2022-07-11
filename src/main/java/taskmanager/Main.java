@@ -7,17 +7,16 @@ import taskmanager.task.SubTask;
 import taskmanager.task.Task;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
-        LocalDateTime time1 = LocalDateTime.of(2022,7,7,10,0);
-        LocalDateTime time2 = LocalDateTime.of(2022,7,8,12,0);
-        LocalDateTime time3 = LocalDateTime.of(2022,7,9,14,0);
+        LocalDateTime time1 = LocalDateTime.of(2022, 7, 7, 10, 0);
+        LocalDateTime time2 = LocalDateTime.of(2022, 7, 8, 12, 0);
+        LocalDateTime time3 = LocalDateTime.of(2022, 7, 9, 14, 0);
         Duration duration = Duration.ofMinutes(30);
 
         FileBackedTaskManager manager = Managers.getFileBackedManager(new File("tasks.csv"));
