@@ -1,4 +1,4 @@
-package yandex.practicum.taskmanager.test.taskmanager.manager.taskmanager;
+package taskmanager.manager.taskmanager;
 
 import org.junit.jupiter.api.Test;
 import yandex.practicum.taskmanager.manager.taskmanager.InMemoryTaskManager;
