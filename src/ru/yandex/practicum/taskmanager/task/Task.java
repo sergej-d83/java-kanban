@@ -8,11 +8,11 @@ import java.util.Objects;
 
 public class Task {
 
+    protected int id;
     protected final String taskName;
     protected final String taskDescription;
-    protected Status status;
-    protected int id;
     protected TaskType type;
+    protected Status status;
     protected LocalDateTime startTime;
     protected Duration duration;
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
