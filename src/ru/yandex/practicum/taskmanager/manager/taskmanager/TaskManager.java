@@ -90,4 +90,5 @@ public interface TaskManager {
     Set<Task> getPrioritizedTasks();
 
     void calculateEpicTimeAndDuration(Epic epic);
+
 }

@@ -3,7 +3,6 @@ package yandex.practicum.taskmanager.manager.server;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpServer;
-import yandex.practicum.taskmanager.manager.historymanager.HistoryManager;
 import yandex.practicum.taskmanager.manager.server.adapter.DurationAdapter;
 import yandex.practicum.taskmanager.manager.server.adapter.LocalDateTimeAdapter;
 import yandex.practicum.taskmanager.manager.server.handler.TasksHandler;
@@ -34,7 +33,7 @@ public class HttpTaskServer {
 
     public void start() {
         server.start();
-        System.out.println("Server started on port " + PORT);
+        System.out.println("Запускаем HttpTaskServer на порту " + PORT);
     }
 
     public void stop() {

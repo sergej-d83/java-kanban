@@ -15,12 +15,16 @@ import java.util.List;
 import java.util.Objects;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
-    private final File file;
+    private File file;
     private static final String TASK_HEADER = "ID,TYPE,NAME,DESCRIPTION,STATUS,START,DURATION,EPIC";
     private static final String HISTORY_HEADER = "HISTORY";
 
     public FileBackedTaskManager(File file) {
         this.file = file;
+    }
+
+    public FileBackedTaskManager() {
+
     }
 
     public static FileBackedTaskManager loadFromFile(File file) {
@@ -180,7 +184,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         save();
     }
 
-    private void save() {
+    protected void save() {
 
         //Пишем все созданные задачи в один список.
         List<String> tasks = new ArrayList<>();
