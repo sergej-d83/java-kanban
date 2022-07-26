@@ -34,13 +34,13 @@ class HttpTaskManagerTest {
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
             .create();
 
-    public LocalDateTime time1 = LocalDateTime.of(2022,7,26,10,0);
-    public LocalDateTime time2 = LocalDateTime.of(2022,7,26,12,0);
-    public LocalDateTime time3 = LocalDateTime.of(2022,7,26,14,0);
+    public LocalDateTime time1 = LocalDateTime.of(2022, 7, 26, 10, 0);
+    public LocalDateTime time2 = LocalDateTime.of(2022, 7, 26, 12, 0);
+    public LocalDateTime time3 = LocalDateTime.of(2022, 7, 26, 14, 0);
     public Duration duration = Duration.ofMinutes(30);
 
-    @BeforeEach
-    void startingServer() {
+    @BeforeAll
+    static void startingServer() {
         try {
             cloudServer = new KVServer();
             cloudServer.start();
@@ -52,10 +52,10 @@ class HttpTaskManagerTest {
         }
     }
 
-    @AfterEach
-    void stoppingServer() {
-        cloudServer.stop();
+    @AfterAll
+    static void stoppingServer() {
         taskServer.stop();
+        cloudServer.stop();
     }
 
     @Test
@@ -79,7 +79,7 @@ class HttpTaskManagerTest {
 
     @Test
     public void deleteTaskByIdNoTask() {
-        assertAll(()->deleteRequest("/tasks/task?id=0"));
+        assertAll(() -> deleteRequest("/tasks/task?id=0"));
     }
 
     @Test
@@ -97,7 +97,7 @@ class HttpTaskManagerTest {
 
     @Test
     public void deleteEpicByIdNoEpics() {
-        assertAll(()->deleteRequest("/tasks/epic?id=0"));
+        assertAll(() -> deleteRequest("/tasks/epic?id=0"));
     }
 
     @Test
@@ -115,14 +115,14 @@ class HttpTaskManagerTest {
 
     @Test
     public void deleteSubTaskByIdNoTask() {
-        assertAll(()->deleteRequest("/tasks/subtask?id=0"));
+        assertAll(() -> deleteRequest("/tasks/subtask?id=0"));
     }
 
     @Test
     public void shouldCreateAndGetTask() {
         String response = getRequest("/tasks/task");
         assertEquals(response, gson.toJson(taskManager.getTaskMap()));
-        Task task = new Task(0, "task","task1", time1, duration);
+        Task task = new Task(0, "task", "task1", time1, duration);
         postRequest("/tasks/task", task);
         response = getRequest("/tasks/task");
         String jsonTask = gson.toJson(taskManager.getTaskMap());
@@ -134,7 +134,7 @@ class HttpTaskManagerTest {
         String response = getRequest("/tasks/epic");
         String json = gson.toJson(taskManager.getEpicMap());
         assertEquals(response, json);
-        Epic epic = new Epic(1, "epic","epic1");
+        Epic epic = new Epic(1, "epic", "epic1");
         postRequest("/tasks/epic", epic);
         response = getRequest("/tasks/epic");
         String jsonTask = gson.toJson(taskManager.getEpicMap());
@@ -146,8 +146,8 @@ class HttpTaskManagerTest {
         String response = getRequest("/tasks/subtask");
         String json = gson.toJson(taskManager.getSubTaskMap());
         assertEquals(response, json);
-        Epic epic = new Epic(2, "epic","epic1");
-        SubTask subTask = new SubTask(3, "subtask","subtask1", time2, duration, 2);
+        Epic epic = new Epic(2, "epic", "epic1");
+        SubTask subTask = new SubTask(3, "subtask", "subtask1", time2, duration, 2);
         postRequest("/tasks/epic", epic);
         postRequest("/tasks/subtask", subTask);
         response = getRequest("/tasks/subtask");
@@ -157,14 +157,15 @@ class HttpTaskManagerTest {
 
     @Test
     public void shouldReturnSubTasksOfEpic() {
-        Epic epic = new Epic(5, "epic","epic1");
-        SubTask subTask = new SubTask(6, "subtask","subtask1", time3, duration, 5);
+        Epic epic = new Epic(5, "epic", "epic1");
+        SubTask subTask = new SubTask(6, "subtask", "subtask1", time3, duration, 5);
         postRequest("/tasks/epic", epic);
         postRequest("/tasks/subtask", subTask);
         String json = gson.toJson(taskManager.getSubTasksOfEpic(5));
         String response = getRequest("/tasks/subtask/epic?id=5");
         assertEquals(response, json);
     }
+
     @Test
     public void shouldReturnAllCreatedTasksNotEmptyList() {
         Task task = new Task(10, "task", "task10",
@@ -177,11 +178,10 @@ class HttpTaskManagerTest {
     }
 
 
-
     @Test
     public void shouldReturnAllTasks() {
-        Task task = new Task(11, "task","task11",
-                LocalDateTime.of(2022,7,26,17,30),
+        Task task = new Task(11, "task", "task11",
+                LocalDateTime.of(2022, 7, 26, 17, 30),
                 Duration.ofMinutes(30));
         taskManager.createTask(task);
         String json = gson.toJson(taskManager.getTaskMap());
@@ -191,7 +191,7 @@ class HttpTaskManagerTest {
 
     @Test
     public void shouldReturnAllEpics() {
-        Epic epic = new Epic(12, "epic","epic12");
+        Epic epic = new Epic(12, "epic", "epic12");
         taskManager.createEpic(epic);
         String json = gson.toJson(taskManager.getEpicMap());
         String response = getRequest("/tasks/epic");
@@ -200,9 +200,9 @@ class HttpTaskManagerTest {
 
     @Test
     public void shouldReturnAllSubTasks() {
-        Epic epic = new Epic(13, "epic","epic13");
-        SubTask subTask = new SubTask(14, "subtask","subtask14",
-                LocalDateTime.of(2022,7,27,19,30),
+        Epic epic = new Epic(13, "epic", "epic13");
+        SubTask subTask = new SubTask(14, "subtask", "subtask14",
+                LocalDateTime.of(2022, 7, 27, 19, 30),
                 Duration.ofMinutes(30), 13);
         taskManager.createEpic(epic);
         taskManager.createSubTask(subTask);
@@ -214,11 +214,11 @@ class HttpTaskManagerTest {
     @Test
     public void shouldReturnHistory() {
         assertEquals(gson.toJson(taskManager.getHistoryManager().getHistory()), "[]");
-        Task task1 = new Task(15, "task","task15",
-                LocalDateTime.of(2022,7,26,20,30),
+        Task task1 = new Task(15, "task", "task15",
+                LocalDateTime.of(2022, 7, 26, 20, 30),
                 Duration.ofMinutes(30));
-        Task task2 = new Task(16, "task","task15",
-                LocalDateTime.of(2022,7,26,22,30),
+        Task task2 = new Task(16, "task", "task15",
+                LocalDateTime.of(2022, 7, 26, 22, 30),
                 Duration.ofMinutes(30));
 
         taskManager.createTask(task1);
@@ -235,10 +235,10 @@ class HttpTaskManagerTest {
 
     @Test
     public void shouldSaveTasks() {
-        //deleteRequest("/tasks/task");
+        deleteRequest("/tasks/task");
         assertEquals(getRequest("/tasks/task"), gson.toJson(taskManager.getTaskMap()));
-        Task task1 = new Task(15, "task","task15",
-                LocalDateTime.of(2022,7,26,20,30),
+        Task task1 = new Task(15, "task", "task15",
+                LocalDateTime.of(2022, 7, 26, 20, 30),
                 Duration.ofMinutes(30));
         taskManager.getTaskMap().put(task1.getId(), task1);
         taskManager.save();
@@ -247,8 +247,8 @@ class HttpTaskManagerTest {
 
     @Test
     public void shouldLoadDataFromServer() {
-        Task task = new Task(20, "task","task15",
-                LocalDateTime.of(2022,7,28,20,30),
+        Task task = new Task(20, "task", "task15",
+                LocalDateTime.of(2022, 7, 28, 20, 30),
                 Duration.ofMinutes(30));
         taskManager.createTask(task);
         assertEquals(getRequest("/tasks/task"), gson.toJson(taskManager.getTaskMap()));
