@@ -301,7 +301,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     public void shouldReturnSubTasksListOfEpic() {
         manager.createEpic(new Epic(0, "Epic1", "Description"));
-        assertNull(manager.getSubTasksOfEpic(0));
+        assertTrue(manager.getSubTasksOfEpic(0).isEmpty());
 
         manager.createSubTask(new SubTask(1, "SubTask1", "Description",
                 time1, duration, 0));

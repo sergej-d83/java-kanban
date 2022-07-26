@@ -103,6 +103,12 @@ public class KVServer {
         server.start();
     }
 
+    public void stop() {
+        System.out.println("Останавливаем KVServer..");
+        server.stop(1);
+        System.out.println("Сервер остановлен!");
+    }
+
     private String generateApiToken() {
         return "" + System.currentTimeMillis();
     }

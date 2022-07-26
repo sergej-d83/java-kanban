@@ -31,15 +31,13 @@ public class HttpTaskManager extends FileBackedTaskManager {
     public HttpTaskManager(String uri) {
         this.client = new KVTaskClient(uri);
         this.gson = new GsonBuilder()
-                .setPrettyPrinting()
                 .registerTypeAdapter(Duration.class, new DurationAdapter())
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .create();
-        load();
     }
 
     @Override
-    protected void save() {
+    public void save() {
 
         String tasks = gson.toJson(getTaskMap());
         String epics = gson.toJson(getEpicMap());

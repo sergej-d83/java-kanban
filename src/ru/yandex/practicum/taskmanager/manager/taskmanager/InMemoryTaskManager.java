@@ -22,15 +22,15 @@ public class InMemoryTaskManager implements TaskManager {
     private final Set<Task> prioritizedTasks = new TreeSet<>((time1, time2) -> {
         if (time1.getStartTime() == null && time2.getStartTime() == null) {
             return 1;
+        }else if (time1.getStartTime() == null) {
+            return 1;
+        } else if (time2.getStartTime() == null) {
+            return -1;
         } else if (time1.getStartTime().isBefore(time2.getStartTime())) {
             return -1;
         } else if (time1.getStartTime().isAfter(time2.getStartTime())) {
             return 1;
-        } else if (time1.getStartTime() == null) {
-            return 1;
-        } else if (time2.getStartTime() == null) {
-            return -1;
-        } else {
+        }  else {
             return 0;
         }
     });
@@ -376,7 +376,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     public <T extends Task> void validateTime(T task) {
 
-        if (task.getStartTime() != null || task.getDuration() != null) {
+        if (task.getStartTime() != null && task.getDuration() != null) {
             LocalDateTime startTime = task.getStartTime();
             Set<Task> taskList = getPrioritizedTasks();
 

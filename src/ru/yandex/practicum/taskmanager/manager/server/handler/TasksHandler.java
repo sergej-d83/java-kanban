@@ -45,14 +45,14 @@ public class TasksHandler implements HttpHandler {
                 case "DELETE" -> handleDeleteRequest(exchange, uri);
                 default -> throw new IllegalArgumentException("Unexpected value. " + method);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
 
     private String handleGetRequest(HttpExchange exchange, URI uri) throws IOException {
 
-        System.out.println("Handle GET request...");
+        System.out.println("Обрабатываю запрос GET...");
 
         int id = getIdFromUri(uri);
         String type = getRequestedTaskType(uri.getPath());
@@ -60,6 +60,7 @@ public class TasksHandler implements HttpHandler {
 
         switch (type) {
             case "tasks":
+                exchange.sendResponseHeaders(200, 0);
                 return gson.toJson(manager.getPrioritizedTasks());
             case "task":
                 if (id < 0) {
@@ -68,6 +69,7 @@ public class TasksHandler implements HttpHandler {
                     Task task = manager.getTaskById(id);
                     response = gson.toJson(task);
                 }
+                exchange.sendResponseHeaders(200, 0);
                 return response;
             case "epic":
                 if (id < 0) {
@@ -76,6 +78,7 @@ public class TasksHandler implements HttpHandler {
                     Epic epic = manager.getEpicById(id);
                     response = gson.toJson(epic);
                 }
+                exchange.sendResponseHeaders(200, 0);
                 return response;
             case "subtask":
                 if (id < 0) {
@@ -84,14 +87,18 @@ public class TasksHandler implements HttpHandler {
                     SubTask subTask = manager.getSubTaskById(id);
                     response = gson.toJson(subTask);
                 }
+                exchange.sendResponseHeaders(200, 0);
                 return response;
             case "subtaskepic":
                 if (id >= 0) {
+                    exchange.sendResponseHeaders(200, 0);
                     return gson.toJson(manager.getSubTasksOfEpic(id));
                 } else {
+                    exchange.sendResponseHeaders(400, 0);
                     throw new IllegalArgumentException("Incorrect ID");
                 }
             case "history":
+                exchange.sendResponseHeaders(200, 0);
                 return gson.toJson(manager.getHistoryManager().getHistory());
             default:
                 exchange.sendResponseHeaders(404, 0);
@@ -99,10 +106,10 @@ public class TasksHandler implements HttpHandler {
         }
     }
 
-    private void handlePostRequest(HttpExchange exchange) throws IOException {
+    private void handlePostRequest(HttpExchange exchange) {
 
         try {
-            System.out.println("Handle POST request...");
+            System.out.println("Обрабатываю запрос POST...");
 
             InputStream inputStream = exchange.getRequestBody();
             String body = new String(inputStream.readAllBytes(), UTF_8);
@@ -117,6 +124,7 @@ public class TasksHandler implements HttpHandler {
                 } else {
                     manager.createEpic(epic);
                 }
+                exchange.sendResponseHeaders(201, 0);
             } else if (task instanceof SubTask) {
                 SubTask subTask;
                 subTask = (SubTask) parseJsonData(body, gson);
@@ -126,18 +134,18 @@ public class TasksHandler implements HttpHandler {
                 } else {
                     manager.createSubTask(subTask);
                 }
+                exchange.sendResponseHeaders(201, 0);
             } else {
-
                 if (manager.getTaskMap().containsKey(task.getId())) {
                     manager.updateTask(task);
                 } else {
                     manager.createTask(task);
                 }
+                exchange.sendResponseHeaders(201, 0);
             }
-            exchange.sendResponseHeaders(201, 0);
-        } catch (IOException e) {
             exchange.sendResponseHeaders(400, 0);
-            System.out.println("Error. " + e.getMessage());
+        } catch (IOException | IllegalArgumentException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -146,37 +154,47 @@ public class TasksHandler implements HttpHandler {
         int id = getIdFromUri(uri);
         String type = getRequestedTaskType(uri.getPath());
 
-        System.out.println("Handle DELETE request...");
+        System.out.println("Обрабатываю запрос DELETE...");
 
-        try {
-            switch (type) {
-                case "task":
+        switch (type) {
+            case "task" -> {
+                if (manager.getTaskMap().containsKey(id)) {
                     if (id >= 0) {
                         manager.removeTaskById(id);
                     } else {
                         manager.clearAllTasks();
                     }
-                    break;
-                case "epic":
+                    exchange.sendResponseHeaders(205, 0);
+                } else {
+                    exchange.sendResponseHeaders(400, 0);
+                }
+            }
+            case "epic" -> {
+                if (manager.getEpicMap().containsKey(id)) {
                     if (id >= 0) {
                         manager.removeEpicById(id);
                     } else {
                         manager.clearAllEpics();
                     }
-                    break;
-                case "subtask":
+                    exchange.sendResponseHeaders(205, 0);
+                } else {
+                    exchange.sendResponseHeaders(400, 0);
+                }
+            }
+            case "subtask" -> {
+                if (manager.getSubTaskMap().containsKey(id)) {
                     if (id >= 0) {
                         manager.removeSubTaskById(id);
                     } else {
                         manager.clearAllSubTasks();
                     }
-                    break;
+                    exchange.sendResponseHeaders(205, 0);
+                } else {
+                    exchange.sendResponseHeaders(400, 0);
+                }
             }
-        } catch (IllegalArgumentException e) {
-            exchange.sendResponseHeaders(400, 0);
-            System.out.println("Error. " + e.getMessage());
+            default -> exchange.sendResponseHeaders(400, 0);
         }
-        exchange.sendResponseHeaders(205, 0);
     }
 
     private String getRequestedTaskType(String path) {
@@ -205,10 +223,9 @@ public class TasksHandler implements HttpHandler {
 
     private void writeResponse(HttpExchange exchange, String response) {
         try (OutputStream os = exchange.getResponseBody()) {
-            exchange.sendResponseHeaders((response.isEmpty()) ? 400 : 200, 0);
             os.write(response.getBytes(UTF_8));
         } catch (IOException e) {
-            System.out.println("Error. " + e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 

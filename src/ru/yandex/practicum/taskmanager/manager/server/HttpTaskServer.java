@@ -25,7 +25,6 @@ public class HttpTaskServer {
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(Duration.class, new DurationAdapter())
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .setPrettyPrinting()
                 .create();
         server = HttpServer.create(new InetSocketAddress(PORT), 0);
         server.createContext("/tasks", new TasksHandler(this.manager, gson));
@@ -37,7 +36,8 @@ public class HttpTaskServer {
     }
 
     public void stop() {
+        System.out.println("Останавливаем HttpTaskServer..");
         server.stop(1);
-        System.out.println("Server stopped");
+        System.out.println("Сервер остановлен!");
     }
 }
