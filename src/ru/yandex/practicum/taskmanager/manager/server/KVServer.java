@@ -24,30 +24,30 @@ public class KVServer {
         server.createContext("/load", this::load);
     }
 
-    private void load(HttpExchange h) throws IOException {
-        try (h) {
+    private void load(HttpExchange exchange) throws IOException {
+        try (exchange) {
             System.out.println("/load");
-            if (!hasAuth(h)) {
+            if (!hasAuth(exchange)) {
                 System.out.println("Запрос не авторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
-                h.sendResponseHeaders(403, 0);
+                exchange.sendResponseHeaders(403, 0);
                 return;
             }
-            if ("GET".equals(h.getRequestMethod())) {
-                String key = h.getRequestURI().getPath().substring("/load/".length());
+            if ("GET".equals(exchange.getRequestMethod())) {
+                String key = exchange.getRequestURI().getPath().substring("/load/".length());
                 if (key.isEmpty()) {
                     System.out.println("Key для загрузки пустой. Key указывается в пути: /load/{key}");
-                    h.sendResponseHeaders(400, 0);
+                    exchange.sendResponseHeaders(400, 0);
                     return;
                 }
 
                 if (data.containsKey(key)) {
                     String value = data.get(key);
-                    sendText(h, value);
+                    sendText(exchange, value);
                     System.out.println("Значение для ключа " + key + " успешно получено!");
-                    h.sendResponseHeaders(200, 0);
+                    exchange.sendResponseHeaders(200, 0);
                 } else {
                     System.out.println("Неверный ключ: " + key);
-                    h.sendResponseHeaders(400, 0);
+                    exchange.sendResponseHeaders(400, 0);
                 }
             }
         }
